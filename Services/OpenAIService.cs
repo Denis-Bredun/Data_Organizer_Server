@@ -24,17 +24,10 @@ namespace Data_Organizer_Server.Services
             if (string.IsNullOrWhiteSpace(content))
                 throw new ArgumentException("Пусті вхідні дані були відправлені на обробку ШІ!");
 
-            if (_messages.Count == 0)
-            {
-                _messages.Add(new Message()
-                {
-                    Role = "system",
-                    Content = "Ти асистент, що робить короткі тези для тексту, використовуючи мову, якою надано вхідні дані."
-                });
-            }
+            string instruction = "Зроби короткі тези для цього тексту, використовуючи мову, якою надано вхідні дані.\n\n";
+            content = instruction + content;
 
             var message = new Message() { Role = "user", Content = content };
-
             _messages.Add(message);
 
             var requestData = new Request()
@@ -43,32 +36,54 @@ namespace Data_Organizer_Server.Services
                 Messages = _messages
             };
 
-            var request = new HttpRequestMessage(HttpMethod.Post, ENDPOINT)
+            var apiKey = Environment.GetEnvironmentVariable("OPENAI_API_KEY");
+
+            if (string.IsNullOrWhiteSpace(apiKey))
+                throw new InvalidOperationException("API ключ OpenAI не заданий!");
+
+            try
             {
-                Content = new StringContent(JsonSerializer.Serialize(requestData))
-            };
+                var request = new HttpRequestMessage(HttpMethod.Post, ENDPOINT)
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(requestData))
+                };
 
-            request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", Environment.GetEnvironmentVariable("OPENAI_API_KEY"));
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
 
-            using var response = await _httpClient.SendAsync(request);
+                using var response = await _httpClient.SendAsync(request);
 
-            if (!response.IsSuccessStatusCode)
-                throw new BadHttpRequestException($"{(int)response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorResponse = await response.Content.ReadAsStringAsync();
+                    throw new HttpRequestException($"OpenAI API помилка: {(int)response.StatusCode} - {errorResponse}");
+                }
 
-            ResponseData? responseData = await response.Content.ReadFromJsonAsync<ResponseData>();
+                var responseData = await response.Content.ReadFromJsonAsync<ResponseData>();
 
-            var choices = responseData?.Choices ?? new List<Choice>();
+                if (responseData == null || responseData.Choices == null || responseData.Choices.Count == 0)
+                    throw new NullReferenceException("ШІ нічого не повернув!");
 
-            if (choices.Count == 0)
-                throw new NullReferenceException("ШІ нічого не повернув!");
+                var responseMessage = responseData.Choices[0].Message;
 
-            var choice = choices[0];
-            var responseMessage = choice.Message;
+                if (responseMessage == null || string.IsNullOrWhiteSpace(responseMessage.Content))
+                    throw new NullReferenceException("Отримане повідомлення від OpenAI пусте!");
 
-            _messages.Add(responseMessage);
-            var responseText = responseMessage.Content.Trim();
-            return responseText;
+                _messages.Add(responseMessage);
+                return responseMessage.Content.Trim();
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception("Помилка під час запиту до OpenAI API!", ex);
+            }
+            catch (JsonException ex)
+            {
+                throw new Exception("Помилка десеріалізації відповіді OpenAI!", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Невідома помилка у OpenAIService!", ex);
+            }
         }
     }
 }

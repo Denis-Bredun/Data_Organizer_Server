@@ -12,15 +12,35 @@ namespace Data_Organizer_Server
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Logging.ClearProviders();
+            builder.Logging.AddConsole();
+            builder.Logging.AddDebug();
+
+            using var loggerFactory = LoggerFactory.Create(loggingBuilder =>
+            {
+                loggingBuilder.ClearProviders();
+                loggingBuilder.AddConsole();
+                loggingBuilder.AddDebug();
+            });
+
+            var logger = loggerFactory.CreateLogger<Program>();
+            logger.LogInformation("Початок ініціалізації...");
+
             var firebaseConfigJson = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
+            logger.LogInformation("Отримано Firebase конфіг з змінної середовища");
 
             if (string.IsNullOrEmpty(firebaseConfigJson))
-                throw new InvalidOperationException("FIREBASE_CONFIG environment variable is not set!");
+            {
+                logger.LogCritical("FIREBASE_CONFIG не встановлено!");
+                throw new InvalidOperationException("Змінна середовища FIREBASE_CONFIG не встановлена!");
+            }
 
+            logger.LogInformation("Ініціалізація Firebase...");
             builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
             {
                 Credential = GoogleCredential.FromJson(firebaseConfigJson)
             }));
+            logger.LogInformation("Firebase ініціалізовано");
 
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
@@ -42,6 +62,7 @@ namespace Data_Organizer_Server
             app.UseAuthorization();
             app.MapControllers();
 
+            app.Logger.LogInformation("Запуск сервера...");
             app.Run();
         }
     }
