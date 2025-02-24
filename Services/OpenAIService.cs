@@ -29,7 +29,9 @@ namespace Data_Organizer_Server.Services
                 _messages.Add(new Message()
                 {
                     Role = "system",
-                    Content = "You are an assistant who makes short summaries for the text, using the language in which the input data was provided."
+                    Content = "Ти асистент, що робить короткі тези для тексту, використовуючи мову, якою надано вхідні дані. " +
+                    "Якщо дані були надані англійською, то розказуєш тезии англійською. Якщо украхнською, то розказуєш тези українською." +
+                    "Якщо російською, то розказуєш російсько."
                 });
             }
 
