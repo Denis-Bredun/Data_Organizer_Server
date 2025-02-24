@@ -24,8 +24,14 @@ namespace Data_Organizer_Server.Services
             if (string.IsNullOrWhiteSpace(content))
                 throw new ArgumentException("Empty input data were sent for AI processing!");
 
-            string instruction = "Make short summaries for this text, using the language in which the input data was provided.\n\n";
-            content = instruction + content;
+            if (_messages.Count == 0)
+            {
+                _messages.Add(new Message()
+                {
+                    Role = "system",
+                    Content = "You are an assistant who makes short summaries for the text, using the language in which the input data was provided."
+                });
+            }
 
             var message = new Message() { Role = "user", Content = content };
             _messages.Add(message);
