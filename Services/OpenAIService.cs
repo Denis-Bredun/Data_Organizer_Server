@@ -8,15 +8,13 @@ namespace Data_Organizer_Server.Services
 {
     public class OpenAIService : IOpenAIService
     {
-        private readonly IConfiguration _configuration;
         private readonly HttpClient _httpClient;
         private readonly List<Message> _messages;
 
         public const string ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
-        public OpenAIService(IConfiguration configuration)
+        public OpenAIService()
         {
-            _configuration = configuration;
             _httpClient = new HttpClient();
             _messages = new List<Message>();
         }
@@ -51,10 +49,9 @@ namespace Data_Organizer_Server.Services
             };
 
             request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _configuration.GetValue<string>("OPENAI_API_KEY"));
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", Environment.GetEnvironmentVariable("OPENAI_API_KEY"));
 
             using var response = await _httpClient.SendAsync(request);
-
 
             if (!response.IsSuccessStatusCode)
                 throw new BadHttpRequestException($"{(int)response.StatusCode}: {await response.Content.ReadAsStringAsync()}");

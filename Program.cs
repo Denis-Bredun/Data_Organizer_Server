@@ -12,19 +12,21 @@ namespace Data_Organizer_Server
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            builder.Services.AddControllers();
+            var firebaseConfigJson = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
 
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-
-            builder.Services.AddAuthorization();
+            if (string.IsNullOrEmpty(firebaseConfigJson))
+                throw new InvalidOperationException("FIREBASE_CONFIG environment variable is not set!");
 
             builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
             {
-                Credential = GoogleCredential.FromJson(builder.Configuration.GetValue<string>("FIREBASE_CONFIG"))
+                Credential = GoogleCredential.FromJson(firebaseConfigJson)
             }));
-            builder.Services.AddFirebaseAuthentication();
 
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+            builder.Services.AddAuthorization();
+            builder.Services.AddFirebaseAuthentication();
             builder.Services.AddScoped<IOpenAIService, OpenAIService>();
 
             var app = builder.Build();
@@ -36,10 +38,8 @@ namespace Data_Organizer_Server
             }
 
             app.UseHttpsRedirection();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.MapControllers();
 
             app.Run();
