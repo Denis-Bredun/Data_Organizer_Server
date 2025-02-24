@@ -24,9 +24,13 @@ namespace Data_Organizer_Server.Controllers
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Content))
             {
-                request.Error = "Порожній запит або відсутній контент!";
-                _logger.LogWarning($"Отримано некоректний запит: {request.Error}");
-                return BadRequest(request);
+                if (request != null)
+                    request.Error = "Empty request or missing content!";
+
+                _logger.LogWarning($"Received invalid request: {request?.Error}");
+                return request != null ?
+                    BadRequest(request) :
+                    BadRequest(new SummaryRequest() { Error = "Empty request or missing content!" });
             }
 
             try
@@ -36,26 +40,26 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (HttpRequestException ex)
             {
-                request.Error = "Помилка підключення до OpenAI API. Спробуйте пізніше.";
+                request.Error = "Error connecting to OpenAI API. Please try again later.";
                 _logger.LogError(ex, request.Error);
                 return StatusCode(502, request);
             }
             catch (NullReferenceException ex)
             {
-                request.Error = "OpenAI API не повернув очікуваний результат.";
+                request.Error = "OpenAI API did not return the expected result.";
                 _logger.LogError(ex, request.Error);
                 return StatusCode(500, request);
             }
             catch (ArgumentException ex)
             {
                 request.Error = ex.Message;
-                _logger.LogWarning(ex, "Некоректні вхідні дані для OpenAIService.");
+                _logger.LogWarning(ex, "Invalid input data for OpenAIService.");
                 return BadRequest(request);
             }
             catch (Exception ex)
             {
-                request.Error = "Сталася внутрішня помилка сервера. Будь ласка, спробуйте пізніше.";
-                _logger.LogError(ex, "Неочікувана помилка в OpenAIController.");
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error in OpenAIController.");
                 return StatusCode(500, request);
             }
         }
