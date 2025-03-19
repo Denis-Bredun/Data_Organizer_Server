@@ -48,7 +48,7 @@ namespace Data_Organizer_Server
             builder.Services.AddAuthorization();
             builder.Services.AddFirebaseAuthentication();
             builder.Services.AddScoped<IOpenAIService, OpenAIService>();
-            builder.Services.AddScoped<IAudioTranscriptionService, AzureAudioTranscriptionService>();
+            builder.Services.AddScoped<IAzureService, AzureService>();
 
             var app = builder.Build();
 

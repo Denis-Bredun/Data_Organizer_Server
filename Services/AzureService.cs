@@ -4,12 +4,12 @@ using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace Data_Organizer_Server.Services
 {
-    public class AzureAudioTranscriptionService : IAudioTranscriptionService
+    public class AzureService : IAzureService
     {
         private readonly string _subscriptionKey;
         private readonly string _region;
 
-        public AzureAudioTranscriptionService()
+        public AzureService()
         {
             _subscriptionKey = Environment.GetEnvironmentVariable("AZURE_SPEECH_KEY");
             _region = Environment.GetEnvironmentVariable("AZURE_SPEECH_REGION");
@@ -18,7 +18,7 @@ namespace Data_Organizer_Server.Services
                 throw new InvalidOperationException("Azure Speech subscription key or region is not set in environment variables.");
         }
 
-        public async Task<string> TranscribeAsync(string audioFilePath, string languageCode)
+        public async Task<string> TranscribeFileAsync(string audioFilePath, string languageCode)
         {
             string convertedFilePath = null;
             try

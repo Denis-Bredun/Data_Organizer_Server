@@ -7,16 +7,16 @@ namespace Data_Organizer_Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/azure-audio")]
-    public class AzureAudioController : ControllerBase
+    [Route("api/azure")]
+    public class AzureController : ControllerBase
     {
-        private readonly IAudioTranscriptionService _transcriptionService;
-        private readonly ILogger<AzureAudioController> _logger;
+        private readonly IAzureService _transcriptionService;
+        private readonly ILogger<AzureController> _logger;
         private const long MaxFileSize = 25 * 1024 * 1024;
 
-        public AzureAudioController(
-            IAudioTranscriptionService transcriptionService,
-            ILogger<AzureAudioController> logger)
+        public AzureController(
+            IAzureService transcriptionService,
+            ILogger<AzureController> logger)
         {
             _transcriptionService = transcriptionService;
             _logger = logger;
@@ -48,7 +48,7 @@ namespace Data_Organizer_Server.Controllers
                     await request.AudioFile.CopyToAsync(stream);
                 }
 
-                var transcriptionResult = await _transcriptionService.TranscribeAsync(tempFilePath, request.LanguageCode);
+                var transcriptionResult = await _transcriptionService.TranscribeFileAsync(tempFilePath, request.LanguageCode);
                 _logger.LogInformation("Audio transcription successful. Result: {Transcription}", transcriptionResult);
 
                 return Ok(new { Transcription = transcriptionResult });
