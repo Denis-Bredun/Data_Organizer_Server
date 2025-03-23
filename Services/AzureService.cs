@@ -53,14 +53,34 @@ namespace Data_Organizer_Server.Services
         {
             convertedFilePath = null;
             var extension = Path.GetExtension(filePath).ToLowerInvariant();
+            
             if (extension == ".wav")
                 return filePath;
 
             convertedFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".wav");
-            using (var reader = new NAudio.Wave.AudioFileReader(filePath))
+            
+            var ffmpegPath = "ffmpeg";
+            
+            var startInfo = new System.Diagnostics.ProcessStartInfo
             {
-                NAudio.Wave.WaveFileWriter.CreateWaveFile(convertedFilePath, reader);
+                FileName = ffmpegPath,
+                Arguments = $"-i \"{filePath}\" -acodec pcm_s16le -ar 16000 -ac 1 \"{convertedFilePath}\"",
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+            
+            using var process = new System.Diagnostics.Process { StartInfo = startInfo };
+            process.Start();
+            process.WaitForExit();
+            
+            if (process.ExitCode != 0)
+            {
+                var error = process.StandardError.ReadToEnd();
+                throw new Exception($"FFmpeg conversion failed: {error}");
             }
+            
             return convertedFilePath;
         }
     }

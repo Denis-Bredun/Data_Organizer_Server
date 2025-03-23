@@ -12,7 +12,7 @@ namespace Data_Organizer_Server.Controllers
     {
         private readonly IAzureService _transcriptionService;
         private readonly ILogger<AzureController> _logger;
-        private const long MaxFileSize = 25 * 1024 * 1024;
+        private const long MaxFileSize = 100 * 1024 * 1024;
 
         public AzureController(
             IAzureService transcriptionService,
