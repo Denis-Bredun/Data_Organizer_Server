@@ -3,6 +3,7 @@ using Data_Organizer_Server.Services;
 using FirebaseAdmin;
 using FirebaseAdminAuthentication.DependencyInjection.Extensions;
 using Google.Apis.Auth.OAuth2;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Data_Organizer_Server
 {
@@ -12,46 +13,58 @@ namespace Data_Organizer_Server
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            ConfigureLogging(builder);
+            ConfigureFirebase(builder);
+            ConfigureServices(builder.Services);
+
+            var app = builder.Build();
+
+            ConfigureMiddleware(app);
+
+            app.Logger.LogInformation("Starting the server...");
+            app.Run();
+        }
+
+        private static void ConfigureLogging(WebApplicationBuilder builder)
+        {
             builder.Logging.ClearProviders();
             builder.Logging.AddConsole();
             builder.Logging.AddDebug();
+        }
 
-            using var loggerFactory = LoggerFactory.Create(loggingBuilder =>
-            {
-                loggingBuilder.ClearProviders();
-                loggingBuilder.AddConsole();
-                loggingBuilder.AddDebug();
-            });
-
-            var logger = loggerFactory.CreateLogger<Program>();
-            logger.LogInformation("Starting initialization...");
-
+        private static void ConfigureFirebase(WebApplicationBuilder builder)
+        {
+            var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<Program>>();
+            logger.LogInformation("Initializing Firebase...");
+            
             var firebaseConfigJson = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
-            logger.LogInformation("Retrieved Firebase config from environment variable");
-
             if (string.IsNullOrEmpty(firebaseConfigJson))
             {
                 logger.LogCritical("FIREBASE_CONFIG is not set!");
                 throw new InvalidOperationException("Environment variable FIREBASE_CONFIG is not set!");
             }
 
-            logger.LogInformation("Initializing Firebase...");
             builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
             {
                 Credential = GoogleCredential.FromJson(firebaseConfigJson)
             }));
-            logger.LogInformation("Firebase initialized");
-
-            builder.Services.AddControllers();
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
-            builder.Services.AddAuthorization();
+            
             builder.Services.AddFirebaseAuthentication();
-            builder.Services.AddScoped<IOpenAIService, OpenAIService>();
-            builder.Services.AddScoped<IAzureService, AzureService>();
+            logger.LogInformation("Firebase initialized successfully");
+        }
 
-            var app = builder.Build();
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services.AddControllers();
+            services.AddEndpointsApiExplorer();
+            services.AddSwaggerGen();
+            services.AddAuthorization();
+            services.AddScoped<IOpenAIService, OpenAIService>();
+            services.AddScoped<IAzureService, AzureService>();
+        }
 
+        private static void ConfigureMiddleware(WebApplication app)
+        {
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
@@ -62,9 +75,6 @@ namespace Data_Organizer_Server
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
-
-            app.Logger.LogInformation("Starting the server...");
-            app.Run();
         }
     }
 }
