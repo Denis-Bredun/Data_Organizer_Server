@@ -61,7 +61,6 @@ namespace Data_Organizer_Server
             services.AddAuthorization();
             services.AddScoped<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
-            services.AddScoped<IPayPalService, PayPalService>();
         }
 
         private static void ConfigureMiddleware(WebApplication app)
