@@ -36,6 +36,7 @@ namespace Data_Organizer_Server.Controllers
             try
             {
                 request.Result = await _openAIService.GetSummary(request.Content);
+                _logger.LogInformation("Summary was successfully created. Result: {Summary}", request.Result);
                 return Ok(request);
             }
             catch (HttpRequestException ex)
