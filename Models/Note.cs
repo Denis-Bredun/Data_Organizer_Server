@@ -6,21 +6,9 @@ namespace Data_Organizer_Server.Models
     public class Note
     {
         [FirestoreProperty]
-        public string UserId { get; set; }
+        public NoteHeader Header { get; set; }
 
         [FirestoreProperty]
-        public string Title { get; set; }
-
-        [FirestoreProperty]
-        public string PreviewText { get; set; }
-
-        [FirestoreProperty]
-        public string Content { get; set; }
-
-        [FirestoreProperty]
-        public DateTime CreationTime { get; set; }
-
-        [FirestoreProperty]
-        public bool IsDeleted { get; set; }
+        public NoteBody Body { get; set; }
     }
 }

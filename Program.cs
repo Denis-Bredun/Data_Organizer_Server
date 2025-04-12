@@ -1,5 +1,6 @@
 using Data_Organizer_Server.Firestore_Converters;
 using Data_Organizer_Server.Interfaces;
+using Data_Organizer_Server.Repositories;
 using Data_Organizer_Server.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
@@ -87,6 +88,10 @@ namespace Data_Organizer_Server
             services.AddAuthorization();
             services.AddScoped<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
+            services.AddScoped<ICollectionFactory, CollectionFactory>();
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IUsersMetadataRepository, UsersMetadataRepository>();
+            services.AddScoped<INoteRepository, NoteRepository>();
         }
 
         private static void ConfigureMiddleware(WebApplication app)
