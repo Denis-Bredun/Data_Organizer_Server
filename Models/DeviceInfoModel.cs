@@ -27,12 +27,6 @@ namespace Data_Organizer_Server.Models
         public string Version { get; set; }
 
         [FirestoreProperty]
-        public string DeviceInfoCombined
-        {
-            get
-            {
-                return $"{Name}_{Model}_{Manufacturer}_{Platform}_{Idiom}_{DeviceType}_{Version}";
-            }
-        }
+        public string DeviceInfoCombined => $"{Name}_{Model}_{Manufacturer}_{Platform}_{Idiom}_{DeviceType}";
     }
 }

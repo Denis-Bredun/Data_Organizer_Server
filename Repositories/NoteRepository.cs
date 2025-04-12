@@ -30,7 +30,7 @@ namespace Data_Organizer_Server.Repositories
         public async Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader)
         {
             if (noteHeader == null)
-                throw new ArgumentNullException("Argument \"noteHeader\" is null while getting the note.");
+                throw new ArgumentNullException("Argument \"noteHeader\" is null while getting the note body by header.");
 
             var docRef = noteHeader.NoteBodyReference;
 
