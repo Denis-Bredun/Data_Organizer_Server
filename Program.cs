@@ -93,6 +93,9 @@ namespace Data_Organizer_Server
             services.AddScoped<IUsersMetadataRepository, UsersMetadataRepository>();
             services.AddScoped<INoteRepository, NoteRepository>();
             services.AddScoped<IDeviceInfoRepository, DeviceInfoRepository>();
+            services.AddScoped<IChangePasswordRepository, ChangePasswordRepository>();
+            services.AddScoped<IAccountLoginRepository, AccountLoginRepository>();
+            services.AddScoped<IAccountLogoutRepository, AccountLogoutRepository>();
         }
 
         private static void ConfigureMiddleware(WebApplication app)
