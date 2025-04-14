@@ -7,7 +7,7 @@ namespace Data_Organizer_Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("firestore")]
+    [Route("firestoredb")]
     public class FirestoreDbController : ControllerBase
     {
         private readonly IAccountLoginRepository _accountLoginRepository;
@@ -179,7 +179,7 @@ namespace Data_Organizer_Server.Controllers
                 await _userRepository.RemoveUserAsync(user.Uid);
                 _logger.LogInformation("User with UID '{Uid}' was successfully soft-deleted.", user.Uid);
 
-                return Ok(new { Message = $"User with UID '{user.Uid}' has been removed (soft delete)." });
+                return Ok(request);
             }
             catch (ArgumentNullException ex)
             {
@@ -223,7 +223,7 @@ namespace Data_Organizer_Server.Controllers
                 var changePasswordDocRef = await _changePasswordRepository.CreateChangePasswordAsync(changePassword);
 
                 _logger.LogInformation("Password change request created successfully for UID: {Uid}", request.Uid);
-                return Ok(new { Message = "Password change request created successfully", Id = changePasswordDocRef.Id });
+                return Ok(changePassword);
             }
             catch (ArgumentNullException ex)
             {
@@ -267,7 +267,7 @@ namespace Data_Organizer_Server.Controllers
                 var accountLoginDocRef = await _accountLoginRepository.CreateAccountLoginAsync(accountLogin);
 
                 _logger.LogInformation("Account login request created successfully for UserID: {UserId}", request.UserId);
-                return Ok(new { Message = "Account login request created successfully", Id = accountLoginDocRef.Id });
+                return Ok(accountLogin);
             }
             catch (ArgumentNullException ex)
             {
@@ -311,7 +311,7 @@ namespace Data_Organizer_Server.Controllers
                 var accountLogoutDocRef = await _accountLogoutRepository.CreateAccountLogoutAsync(accountLogout);
 
                 _logger.LogInformation("Account logout request created successfully for UserID: {UserId}", request.UserId);
-                return Ok(new { Message = "Account logout request created successfully", Id = accountLogoutDocRef.Id });
+                return Ok(accountLogout);
             }
             catch (ArgumentNullException ex)
             {
@@ -345,7 +345,7 @@ namespace Data_Organizer_Server.Controllers
                 await _noteRepository.CreateNoteAsync(note);
 
                 _logger.LogInformation("Note created successfully for UID: {Uid}", note.Header.UserId);
-                return Ok(new { Message = "Note created successfully" });
+                return Ok(note);
             }
             catch (ArgumentNullException ex)
             {
@@ -435,7 +435,7 @@ namespace Data_Organizer_Server.Controllers
                 await _noteRepository.RemoveNoteAsync(noteHeader);
                 _logger.LogInformation("Note marked as deleted for UID '{Uid}' and creation time '{CreationTime}'.",
                     noteHeader.UserId, noteHeader.CreationTime);
-                return Ok(new { Message = "Note removed (soft delete) successfully." });
+                return Ok(noteHeader);
             }
             catch (ArgumentNullException ex)
             {
@@ -468,7 +468,7 @@ namespace Data_Organizer_Server.Controllers
             {
                 await _noteRepository.UpdateNoteAsync(note);
                 _logger.LogInformation("Note updated successfully for UID: {Uid} at {Time}", note.Header.UserId, note.Header.CreationTime);
-                return Ok(new { Message = "Note updated successfully." });
+                return Ok(note);
             }
             catch (ArgumentNullException ex)
             {
