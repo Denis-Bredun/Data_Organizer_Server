@@ -84,7 +84,7 @@ namespace Data_Organizer_Server
         {
             services.AddControllers();
             services.AddEndpointsApiExplorer();
-            services.AddSwaggerGen();
+            //services.AddSwaggerGen();
             services.AddAuthorization();
             services.AddScoped<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
@@ -100,11 +100,11 @@ namespace Data_Organizer_Server
 
         private static void ConfigureMiddleware(WebApplication app)
         {
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
 
             app.UseHttpsRedirection();
             app.UseAuthentication();

@@ -7,7 +7,7 @@ namespace Data_Organizer_Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/openai")]
+    [Route("openai")]
     public class OpenAIController : ControllerBase
     {
         private readonly IOpenAIService _openAIService;
@@ -20,14 +20,14 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPost("summary")]
-        public async Task<IActionResult> GetSummary([FromBody] SummaryRequest request)
+        public async Task<IActionResult> GetSummaryAsync([FromBody] SummaryRequest request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Content))
             {
                 if (request != null)
                     request.Error = "Empty request or missing content!";
 
-                _logger.LogWarning($"Received invalid request: {request?.Error}");
+                _logger.LogError($"Received invalid request: {request?.Error}");
                 return request != null ?
                     BadRequest(request) :
                     BadRequest(new SummaryRequest() { Error = "Empty request or missing content!" });
@@ -54,7 +54,7 @@ namespace Data_Organizer_Server.Controllers
             catch (ArgumentException ex)
             {
                 request.Error = ex.Message;
-                _logger.LogWarning(ex, "Invalid input data for OpenAIService.");
+                _logger.LogError(ex, "Invalid input data for OpenAIService.");
                 return BadRequest(request);
             }
             catch (Exception ex)

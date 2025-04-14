@@ -7,7 +7,7 @@ namespace Data_Organizer_Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("api/azure")]
+    [Route("azure")]
     public class AzureController : ControllerBase
     {
         private readonly IAzureService _transcriptionService;
@@ -24,19 +24,19 @@ namespace Data_Organizer_Server.Controllers
 
         [HttpPost("transcribe-file")]
         [RequestSizeLimit(MaxFileSize)]
-        public async Task<IActionResult> TranscribeFromFile([FromForm] TranscriptionFromFileRequest request)
+        public async Task<IActionResult> TranscribeFromFileAsync([FromForm] TranscriptionFromFileRequest request)
         {
             if (request == null || request.AudioFile == null || request.AudioFile.Length == 0)
             {
                 string error = "Please upload an audio file";
-                _logger.LogWarning(error);
+                _logger.LogError(error);
                 return BadRequest(error);
             }
 
             if (request.AudioFile.Length > MaxFileSize)
             {
                 string error = $"File size exceeds {MaxFileSize / 1024 / 1024}MB limit";
-                _logger.LogWarning(error);
+                _logger.LogError(error);
                 return BadRequest(error);
             }
 
@@ -68,7 +68,7 @@ namespace Data_Organizer_Server.Controllers
             catch (ArgumentException ex)
             {
                 string error = ex.Message;
-                _logger.LogWarning(ex, "Invalid input data for transcription.");
+                _logger.LogError(ex, "Invalid input data for transcription.");
                 return BadRequest(new { Error = error });
             }
             catch (Exception ex)

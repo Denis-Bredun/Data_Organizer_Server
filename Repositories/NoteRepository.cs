@@ -17,8 +17,10 @@ namespace Data_Organizer_Server.Repositories
 
         public async Task CreateNoteAsync(Note note)
         {
-            if (note == null)
-                throw new ArgumentNullException("Argument \"note\" is null while creating the note.");
+            if (note == null ||
+                note.Header == null ||
+                note.Body == null)
+                throw new ArgumentNullException("Argument is null while creating the note.");
 
             var body = note.Body;
             var header = note.Header;
