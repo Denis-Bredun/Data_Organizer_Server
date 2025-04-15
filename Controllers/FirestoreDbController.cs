@@ -10,32 +10,14 @@ namespace Data_Organizer_Server.Controllers
     [Route("firestoredb")]
     public class FirestoreDbController : ControllerBase
     {
-        private readonly IAccountLoginRepository _accountLoginRepository;
-        private readonly IAccountLogoutRepository _accountLogoutRepository;
-        private readonly IChangePasswordRepository _changePasswordRepository;
-        private readonly IDeviceInfoRepository _deviceInfoRepository;
-        private readonly INoteRepository _noteRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IUsersMetadataRepository _usersMetadataRepository;
+        private readonly IFirestoreDbService _firestoreDbService;
         private readonly ILogger<FirestoreDbController> _logger;
 
         public FirestoreDbController(
-            IAccountLoginRepository accountLoginRepository,
-            IAccountLogoutRepository accountLogoutRepository,
-            IChangePasswordRepository changePasswordRepository,
-            IDeviceInfoRepository deviceInfoRepository,
-            INoteRepository noteRepository,
-            IUserRepository userRepository,
-            IUsersMetadataRepository usersMetadataRepository,
+            IFirestoreDbService firestoreDbService,
             ILogger<FirestoreDbController> logger)
         {
-            _accountLoginRepository = accountLoginRepository;
-            _accountLogoutRepository = accountLogoutRepository;
-            _changePasswordRepository = changePasswordRepository;
-            _deviceInfoRepository = deviceInfoRepository;
-            _noteRepository = noteRepository;
-            _userRepository = userRepository;
-            _usersMetadataRepository = usersMetadataRepository;
+            _firestoreDbService = firestoreDbService;
             _logger = logger;
         }
 
@@ -54,20 +36,9 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var user = userCreationRequest.User;
-                var userMetadata = userCreationRequest.UsersMetadata;
-
-                if (userMetadata != null)
-                {
-                    var metadataRef = await _usersMetadataRepository.CreateMetadataAsync(userMetadata);
-                    user.UsersMetadata = metadataRef;
-                    _logger.LogInformation("Metadata document created successfully for user UID: {Uid}", user.Uid);
-                }
-
-                await _userRepository.CreateUserAsync(user);
-
-                _logger.LogInformation("User created successfully with UID: {Uid}", user.Uid);
-                return Ok(userCreationRequest);
+                var result = await _firestoreDbService.CreateUserAsync(userCreationRequest);
+                _logger.LogInformation("User created successfully with UID: {Uid}", result.User.Uid);
+                return Ok(result);
             }
             catch (ArgumentNullException ex)
             {
@@ -95,7 +66,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var user = await _userRepository.GetUserByUidAsync(uid);
+                var user = await _firestoreDbService.GetUserByUidAsync(uid);
                 _logger.LogInformation("User with UID '{Uid}' retrieved successfully.", uid);
                 return Ok(user);
             }
@@ -128,7 +99,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                await _userRepository.UpdateUserAsync(user);
+                await _firestoreDbService.UpdateUserAsync(user);
                 _logger.LogInformation("User with UID '{Uid}' was successfully updated.", user.Uid);
                 return Ok(user);
             }
@@ -159,26 +130,18 @@ namespace Data_Organizer_Server.Controllers
                 return BadRequest(new { Error = error });
             }
 
-            var user = request.User;
-
             try
             {
-                if (user.IsMetadataStored)
-                {
-                    if (request.UsersMetadata == null)
-                    {
-                        var metadataError = $"User '{user.Uid}' has metadata stored, but UsersMetadata object is null in request.";
-                        _logger.LogWarning(metadataError);
-                        return BadRequest(new { Error = metadataError });
-                    }
+                var result = await _firestoreDbService.RemoveUserAsync(request);
 
-                    await _usersMetadataRepository.UpdateMetadataAsync(user.Uid, request.UsersMetadata);
-                    _logger.LogInformation("Metadata for user with UID '{Uid}' was updated before soft-delete.", user.Uid);
+                if (!result)
+                {
+                    var metadataError = $"User '{request.User.Uid}' has metadata stored, but UsersMetadata object is null in request.";
+                    _logger.LogWarning(metadataError);
+                    return BadRequest(new { Error = metadataError });
                 }
 
-                await _userRepository.RemoveUserAsync(user.Uid);
-                _logger.LogInformation("User with UID '{Uid}' was successfully soft-deleted.", user.Uid);
-
+                _logger.LogInformation("User with UID '{Uid}' was successfully soft-deleted.", request.User.Uid);
                 return Ok(request);
             }
             catch (ArgumentNullException ex)
@@ -188,12 +151,12 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User or metadata not found for UID '{Uid}'.", user.Uid);
+                _logger.LogWarning(ex, "User or metadata not found for UID '{Uid}'.", request.User.Uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error during removal of user with UID '{Uid}'.", user.Uid);
+                _logger.LogError(ex, "Unexpected error during removal of user with UID '{Uid}'.", request.User.Uid);
                 return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
             }
         }
@@ -213,15 +176,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var deviceDocRef = await _deviceInfoRepository.CreateDeviceAsync(request.DeviceInfo);
-                var usersMetadataDocRef = await _usersMetadataRepository.GetUsersMetadataReferenceByUidAsync(request.Uid);
-
-                var changePassword = request.ChangePassword;
-                changePassword.Device = deviceDocRef;
-                changePassword.UsersMetadata = usersMetadataDocRef;
-
-                var changePasswordDocRef = await _changePasswordRepository.CreateChangePasswordAsync(changePassword);
-
+                var changePassword = await _firestoreDbService.CreateChangePasswordAsync(request);
                 _logger.LogInformation("Password change request created successfully for UID: {Uid}", request.Uid);
                 return Ok(changePassword);
             }
@@ -257,15 +212,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var deviceDocRef = await _deviceInfoRepository.CreateDeviceAsync(request.DeviceInfo);
-                var usersMetadataDocRef = await _usersMetadataRepository.GetUsersMetadataReferenceByUidAsync(request.UserId);
-
-                var accountLogin = request.AccountLogin;
-                accountLogin.Device = deviceDocRef;
-                accountLogin.UsersMetadata = usersMetadataDocRef;
-
-                var accountLoginDocRef = await _accountLoginRepository.CreateAccountLoginAsync(accountLogin);
-
+                var accountLogin = await _firestoreDbService.CreateAccountLoginAsync(request);
                 _logger.LogInformation("Account login request created successfully for UserID: {UserId}", request.UserId);
                 return Ok(accountLogin);
             }
@@ -301,15 +248,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var deviceDocRef = await _deviceInfoRepository.CreateDeviceAsync(request.DeviceInfo);
-                var usersMetadataDocRef = await _usersMetadataRepository.GetUsersMetadataReferenceByUidAsync(request.UserId);
-
-                var accountLogout = request.AccountLogout;
-                accountLogout.Device = deviceDocRef;
-                accountLogout.UsersMetadata = usersMetadataDocRef;
-
-                var accountLogoutDocRef = await _accountLogoutRepository.CreateAccountLogoutAsync(accountLogout);
-
+                var accountLogout = await _firestoreDbService.CreateAccountLogoutAsync(request);
                 _logger.LogInformation("Account logout request created successfully for UserID: {UserId}", request.UserId);
                 return Ok(accountLogout);
             }
@@ -342,10 +281,9 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                await _noteRepository.CreateNoteAsync(note);
-
+                var createdNote = await _firestoreDbService.CreateNoteAsync(note);
                 _logger.LogInformation("Note created successfully for UID: {Uid}", note.Header.UserId);
-                return Ok(note);
+                return Ok(createdNote);
             }
             catch (ArgumentNullException ex)
             {
@@ -371,7 +309,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var headers = await _noteRepository.GetNoteHeadersByUidAsync(uid);
+                var headers = await _firestoreDbService.GetNoteHeadersByUidAsync(uid);
                 _logger.LogInformation("Note headers for UID '{Uid}' retrieved successfully.", uid);
                 return Ok(headers);
             }
@@ -404,7 +342,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var body = await _noteRepository.GetNoteBodyByHeaderAsync(noteHeader);
+                var body = await _firestoreDbService.GetNoteBodyByHeaderAsync(noteHeader);
                 _logger.LogInformation("Note body for header with UID '{Uid}' retrieved successfully.", noteHeader.UserId);
                 return Ok(body);
             }
@@ -432,7 +370,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                await _noteRepository.RemoveNoteAsync(noteHeader);
+                await _firestoreDbService.RemoveNoteAsync(noteHeader);
                 _logger.LogInformation("Note marked as deleted for UID '{Uid}' and creation time '{CreationTime}'.",
                     noteHeader.UserId, noteHeader.CreationTime);
                 return Ok(noteHeader);
@@ -466,7 +404,7 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                await _noteRepository.UpdateNoteAsync(note);
+                await _firestoreDbService.UpdateNoteAsync(note);
                 _logger.LogInformation("Note updated successfully for UID: {Uid} at {Time}", note.Header.UserId, note.Header.CreationTime);
                 return Ok(note);
             }

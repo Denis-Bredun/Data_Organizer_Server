@@ -89,6 +89,7 @@ namespace Data_Organizer_Server
             services.AddScoped<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
             services.AddScoped<ICollectionFactory, CollectionFactory>();
+            services.AddScoped<IFirestoreDbService, FirestoreDbService>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUsersMetadataRepository, UsersMetadataRepository>();
             services.AddScoped<INoteRepository, NoteRepository>();
