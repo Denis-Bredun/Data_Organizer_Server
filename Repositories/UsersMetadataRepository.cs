@@ -4,10 +4,13 @@ using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Repositories
 {
-    public class UsersMetadataRepository(ICollectionFactory collectionFactory) : IUsersMetadataRepository
+    public class UsersMetadataRepository(
+    ICollectionFactory collectionFactory,
+    IUserRepository userRepository) : IUsersMetadataRepository
     {
         private readonly CollectionReference _metadataCollection = collectionFactory.GetUsersMetadataCollection();
         private readonly CollectionReference _usersCollection = collectionFactory.GetUsersCollection();
+        private readonly IUserRepository _userRepository = userRepository;
 
         public async Task<DocumentReference> CreateMetadataAsync(UsersMetadata metadata)
         {
@@ -33,7 +36,12 @@ namespace Data_Organizer_Server.Repositories
 
             var user = docs[0].ConvertTo<User>();
 
+            bool wasMetadataNull = user.UsersMetadata == null;
+
             user.UsersMetadata = await CreateMetadataIfNecessary(user.UsersMetadata);
+
+            if (wasMetadataNull)
+                await _userRepository.UpdateUserAsync(user);
 
             return user.UsersMetadata;
         }
