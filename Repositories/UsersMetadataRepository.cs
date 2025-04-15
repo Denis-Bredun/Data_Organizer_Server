@@ -33,10 +33,19 @@ namespace Data_Organizer_Server.Repositories
 
             var user = docs[0].ConvertTo<User>();
 
-            if (user.UsersMetadata == null)
-                throw new KeyNotFoundException($"UsersMetadata reference for user with UID '{uid}' is not set.");
+            user.UsersMetadata = await CreateMetadataIfNecessary(user.UsersMetadata);
 
             return user.UsersMetadata;
+        }
+
+        private async Task<DocumentReference> CreateMetadataIfNecessary(DocumentReference metadataDocRef)
+        {
+            if (metadataDocRef == null)
+            {
+                UsersMetadata usersMetadata = new UsersMetadata();
+                metadataDocRef = await CreateMetadataAsync(usersMetadata);
+            }
+            return metadataDocRef;
         }
 
         public async Task UpdateMetadataAsync(string uid, UsersMetadata metadata)

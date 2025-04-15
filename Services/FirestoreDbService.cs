@@ -108,8 +108,6 @@ namespace Data_Organizer_Server.Services
             var deviceDocRef = await _deviceInfoRepository.CreateDeviceAsync(deviceInfo);
             var usersMetadataDocRef = await _usersMetadataRepository.GetUsersMetadataReferenceByUidAsync(userId);
 
-            // а если метаданные до этого не создавались? И то же самое с Update методом при удалении аккаунта
-
             return (deviceDocRef, usersMetadataDocRef);
         }
 

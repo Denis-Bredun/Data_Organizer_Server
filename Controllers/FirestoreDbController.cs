@@ -147,7 +147,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User or metadata not found for UID '{Uid}'.", request.User.Uid);
+                _logger.LogWarning(ex, "User not found for UID '{Uid}'.", request.User.Uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -183,7 +183,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Metadata not found for UID '{Uid}'.", request.Uid);
+                _logger.LogWarning(ex, "User not found for UID '{Uid}'.", request.Uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -219,7 +219,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Metadata not found for UserID '{UserId}'.", request.UserId);
+                _logger.LogWarning(ex, "User not found for UserID '{UserId}'.", request.UserId);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -255,7 +255,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Metadata not found for UserID '{UserId}'.", request.UserId);
+                _logger.LogWarning(ex, "User not found for UserID '{UserId}'.", request.UserId);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
