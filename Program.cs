@@ -5,6 +5,8 @@ using Data_Organizer_Server.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Data_Organizer_Server
 {
@@ -38,7 +40,7 @@ namespace Data_Organizer_Server
             var serviceProvider = builder.Services.BuildServiceProvider();
             var logger = serviceProvider.GetRequiredService<ILogger<Program>>();
             logger.LogInformation("Initializing Firebase...");
-            
+
             var firebaseConfigJson = Environment.GetEnvironmentVariable("FIREBASE_CONFIG");
             if (string.IsNullOrEmpty(firebaseConfigJson))
             {
@@ -82,6 +84,19 @@ namespace Data_Organizer_Server
 
         private static void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.Authority = "https://securetoken.google.com/data-organizer-eaa8f";
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://securetoken.google.com/data-organizer-eaa8f",
+                    ValidateAudience = true,
+                    ValidAudience = "data-organizer-eaa8f",
+                    ValidateLifetime = true
+                };
+            });
             services.AddControllers();
             services.AddEndpointsApiExplorer();
             //services.AddSwaggerGen();
