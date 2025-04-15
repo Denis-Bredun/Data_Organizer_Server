@@ -1,3 +1,4 @@
+using Data_Organizer_Server.Entities;
 using Data_Organizer_Server.Firestore_Converters;
 using Data_Organizer_Server.Interfaces;
 using Data_Organizer_Server.Repositories;
@@ -5,6 +6,7 @@ using Data_Organizer_Server.Services;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
+using System.Text.Json;
 
 namespace Data_Organizer_Server
 {
@@ -66,6 +68,10 @@ namespace Data_Organizer_Server
         private static void ConfigureFirestore(WebApplicationBuilder builder, string firebaseConfigJson, ILogger logger)
         {
             logger.LogInformation("Initializing Firestore...");
+
+            var firebaseConfig = JsonSerializer.Deserialize<FirebaseConfig>(firebaseConfigJson);
+            var jsonCredentials = JsonSerializer.Serialize(firebaseConfig);
+
             var firestoreDbBuilder = new FirestoreDbBuilder
             {
                 ProjectId = "data-organizer-eaa8f",
@@ -73,10 +79,12 @@ namespace Data_Organizer_Server
                 {
                     new DateTimeTimestampConverter()
                 },
-                JsonCredentials = firebaseConfigJson
+                JsonCredentials = jsonCredentials
             };
+
             var firestoreDb = firestoreDbBuilder.Build();
             builder.Services.AddSingleton(firestoreDb);
+
             logger.LogInformation("Firestore initialized successfully");
         }
 
