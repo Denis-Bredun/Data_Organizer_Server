@@ -4,7 +4,6 @@ using Data_Organizer_Server.Services;
 using FirebaseAdmin;
 using FirebaseAdminAuthentication.DependencyInjection.Extensions;
 using Google.Apis.Auth.OAuth2;
-using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server
 {
@@ -45,19 +44,10 @@ namespace Data_Organizer_Server
                 throw new InvalidOperationException("Environment variable FIREBASE_CONFIG is not set!");
             }
 
-            var appOptions = new AppOptions()
+            builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
             {
                 Credential = GoogleCredential.FromJson(firebaseConfigJson)
-            };
-
-            var firebaseApp = FirebaseApp.Create(appOptions);
-
-            builder.Services.AddSingleton(firebaseApp);
-
-            builder.Services.AddSingleton(provider =>
-            {
-                return FirestoreDb.Create(firebaseApp.Options.ProjectId);
-            });
+            }));
 
             builder.Services.AddFirebaseAuthentication();
             logger.LogInformation("Firebase initialized successfully");
