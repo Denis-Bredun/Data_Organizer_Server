@@ -1,5 +1,6 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.DTOs;
+using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,27 +9,22 @@ namespace Data_Organizer_Server.Controllers
     [Authorize]
     [ApiController]
     [Route("firestoredb")]
-    public class FirestoreDbController : ControllerBase
+    public class FirestoreDbController(
+    IFirestoreDbService firestoreDbService,
+    ILogger<FirestoreDbController> logger) : ControllerBase
     {
-        private readonly IFirestoreDbService _firestoreDbService;
-        private readonly ILogger<FirestoreDbController> _logger;
+        private readonly IFirestoreDbService _firestoreDbService = firestoreDbService;
+        private readonly ILogger<FirestoreDbController> _logger = logger;
 
-        public FirestoreDbController(
-            IFirestoreDbService firestoreDbService,
-            ILogger<FirestoreDbController> logger)
-        {
-            _firestoreDbService = firestoreDbService;
-            _logger = logger;
-        }
 
         [HttpPost("create-user")]
-        public async Task<IActionResult> CreateUserAsync([FromBody] UserCreationRequest userCreationRequest)
+        public async Task<IActionResult> CreateUserAsync([FromBody] UserRequestDTO userCreationRequest)
         {
             if (userCreationRequest == null || userCreationRequest.User == null)
             {
                 var error = "Empty request or missing user data!";
                 _logger.LogError("Received invalid user creation request: {Error}", error);
-                return BadRequest(new UserCreationRequest
+                return BadRequest(new UserRequestDTO
                 {
                     Error = error
                 });
@@ -88,7 +84,7 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPut("update-user")]
-        public async Task<IActionResult> UpdateUserAsync([FromBody] Models.User user)
+        public async Task<IActionResult> UpdateUserAsync([FromBody] Entities.User user)
         {
             if (user == null)
             {
@@ -121,7 +117,7 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpDelete("remove-user")]
-        public async Task<IActionResult> RemoveUserAsync([FromBody] UserCreationRequest request)
+        public async Task<IActionResult> RemoveUserAsync([FromBody] UserRequestDTO request)
         {
             if (request == null || request.User == null)
             {
@@ -162,7 +158,7 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPost("create-change-password")]
-        public async Task<IActionResult> CreateChangePasswordAsync([FromBody] ChangePasswordCreationRequest request)
+        public async Task<IActionResult> CreateChangePasswordAsync([FromBody] ChangePasswordRequestDTO request)
         {
             if (request == null ||
                 request.ChangePassword == null ||
@@ -198,7 +194,7 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPost("create-account-login")]
-        public async Task<IActionResult> CreateAccountLoginAsync([FromBody] AccountLoginCreationRequest request)
+        public async Task<IActionResult> CreateAccountLoginAsync([FromBody] AccountLoginRequestDTO request)
         {
             if (request == null ||
                 request.AccountLogin == null ||
@@ -234,7 +230,7 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPost("create-account-logout")]
-        public async Task<IActionResult> CreateAccountLogoutAsync([FromBody] AccountLogoutCreationRequest request)
+        public async Task<IActionResult> CreateAccountLogoutAsync([FromBody] AccountLogoutRequestDTO request)
         {
             if (request == null ||
                 request.AccountLogout == null ||

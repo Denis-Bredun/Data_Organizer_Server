@@ -1,4 +1,4 @@
-﻿using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
 
 namespace Data_Organizer_Server.Interfaces
 {

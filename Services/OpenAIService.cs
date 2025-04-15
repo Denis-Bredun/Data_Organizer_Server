@@ -1,8 +1,8 @@
 ﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+using Data_Organizer_Server.Entities;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Message = Data_Organizer_Server.Models.Message;
+using Message = Data_Organizer_Server.Entities.Message;
 
 namespace Data_Organizer_Server.Services
 {

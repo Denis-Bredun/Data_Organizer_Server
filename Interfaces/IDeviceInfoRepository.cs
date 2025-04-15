@@ -1,4 +1,4 @@
-﻿using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Interfaces

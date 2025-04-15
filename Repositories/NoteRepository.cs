@@ -1,19 +1,13 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Repositories
 {
-    public class NoteRepository : INoteRepository
+    public class NoteRepository(ICollectionFactory collectionFactory) : INoteRepository
     {
-        private readonly CollectionReference _noteBodiesCollection;
-        private readonly CollectionReference _noteHeadersCollection;
-
-        public NoteRepository(ICollectionFactory collectionFactory)
-        {
-            _noteBodiesCollection = collectionFactory.GetNoteBodiesCollection();
-            _noteHeadersCollection = collectionFactory.GetNoteHeadersCollection();
-        }
+        private readonly CollectionReference _noteBodiesCollection = collectionFactory.GetNoteBodiesCollection();
+        private readonly CollectionReference _noteHeadersCollection = collectionFactory.GetNoteHeadersCollection();
 
         public async Task CreateNoteAsync(Note note)
         {

@@ -1,17 +1,12 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Repositories
 {
-    public class UserRepository : IUserRepository
+    public class UserRepository(ICollectionFactory collectionFactory) : IUserRepository
     {
-        private readonly CollectionReference _usersCollection;
-
-        public UserRepository(ICollectionFactory collectionFactory)
-        {
-            _usersCollection = collectionFactory.GetUsersCollection();
-        }
+        private readonly CollectionReference _usersCollection = collectionFactory.GetUsersCollection();
 
         public async Task<string> CreateUserAsync(User user)
         {

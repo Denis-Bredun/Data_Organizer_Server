@@ -1,5 +1,5 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.DTOs;
+using Data_Organizer_Server.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,19 +8,16 @@ namespace Data_Organizer_Server.Controllers
     [Authorize]
     [ApiController]
     [Route("openai")]
-    public class OpenAIController : ControllerBase
+    public class OpenAIController(
+    IOpenAIService openAIService,
+    ILogger<OpenAIController> logger) : ControllerBase
     {
-        private readonly IOpenAIService _openAIService;
-        private readonly ILogger<OpenAIController> _logger;
+        private readonly IOpenAIService _openAIService = openAIService;
+        private readonly ILogger<OpenAIController> _logger = logger;
 
-        public OpenAIController(IOpenAIService openAIService, ILogger<OpenAIController> logger)
-        {
-            _openAIService = openAIService;
-            _logger = logger;
-        }
 
         [HttpPost("summary")]
-        public async Task<IActionResult> GetSummaryAsync([FromBody] SummaryRequest request)
+        public async Task<IActionResult> GetSummaryAsync([FromBody] SummaryRequestDTO request)
         {
             if (request == null || string.IsNullOrWhiteSpace(request.Content))
             {
@@ -30,7 +27,7 @@ namespace Data_Organizer_Server.Controllers
                 _logger.LogError($"Received invalid request: {request?.Error}");
                 return request != null ?
                     BadRequest(request) :
-                    BadRequest(new SummaryRequest() { Error = "Empty request or missing content!" });
+                    BadRequest(new SummaryRequestDTO() { Error = "Empty request or missing content!" });
             }
 
             try

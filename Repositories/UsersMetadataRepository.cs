@@ -1,19 +1,13 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Repositories
 {
-    public class UsersMetadataRepository : IUsersMetadataRepository
+    public class UsersMetadataRepository(ICollectionFactory collectionFactory) : IUsersMetadataRepository
     {
-        private readonly CollectionReference _metadataCollection;
-        private readonly CollectionReference _usersCollection;
-
-        public UsersMetadataRepository(ICollectionFactory collectionFactory)
-        {
-            _metadataCollection = collectionFactory.GetUsersMetadataCollection();
-            _usersCollection = collectionFactory.GetUsersCollection();
-        }
+        private readonly CollectionReference _metadataCollection = collectionFactory.GetUsersMetadataCollection();
+        private readonly CollectionReference _usersCollection = collectionFactory.GetUsersCollection();
 
         public async Task<DocumentReference> CreateMetadataAsync(UsersMetadata metadata)
         {

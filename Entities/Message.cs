@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Data_Organizer_Server.Models
+namespace Data_Organizer_Server.Entities
 {
     public class Message
     {

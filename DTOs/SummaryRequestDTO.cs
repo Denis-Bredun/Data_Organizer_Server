@@ -1,6 +1,6 @@
-﻿namespace Data_Organizer_Server.Models
+﻿namespace Data_Organizer_Server.DTOs
 {
-    public class SummaryRequest
+    public class SummaryRequestDTO
     {
         public string Content { get; set; } = string.Empty;
         public string Result { get; set; } = string.Empty;

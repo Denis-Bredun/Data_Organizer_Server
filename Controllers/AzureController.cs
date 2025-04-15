@@ -1,5 +1,5 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.DTOs;
+using Data_Organizer_Server.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,23 +8,17 @@ namespace Data_Organizer_Server.Controllers
     [Authorize]
     [ApiController]
     [Route("azure")]
-    public class AzureController : ControllerBase
+    public class AzureController(
+    IAzureService transcriptionService,
+    ILogger<AzureController> logger) : ControllerBase
     {
-        private readonly IAzureService _transcriptionService;
-        private readonly ILogger<AzureController> _logger;
         private const long MaxFileSize = 100 * 1024 * 1024;
-
-        public AzureController(
-            IAzureService transcriptionService,
-            ILogger<AzureController> logger)
-        {
-            _transcriptionService = transcriptionService;
-            _logger = logger;
-        }
+        private readonly IAzureService _transcriptionService = transcriptionService;
+        private readonly ILogger<AzureController> _logger = logger;
 
         [HttpPost("transcribe-file")]
         [RequestSizeLimit(MaxFileSize)]
-        public async Task<IActionResult> TranscribeFromFileAsync([FromForm] TranscriptionFromFileRequest request)
+        public async Task<IActionResult> TranscribeFromFileAsync([FromForm] AudiofileDTO request)
         {
             if (request == null || request.AudioFile == null || request.AudioFile.Length == 0)
             {

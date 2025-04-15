@@ -1,9 +1,9 @@
 ﻿using Google.Cloud.Firestore;
 
-namespace Data_Organizer_Server.Models
+namespace Data_Organizer_Server.Entities
 {
     [FirestoreData]
-    public class AccountLogin
+    public class AccountLogout
     {
         [FirestoreProperty]
         public DocumentReference UsersMetadata { get; set; }

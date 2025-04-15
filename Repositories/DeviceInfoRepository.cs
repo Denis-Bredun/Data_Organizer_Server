@@ -1,17 +1,12 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Repositories
 {
-    public class DeviceInfoRepository : IDeviceInfoRepository
+    public class DeviceInfoRepository(ICollectionFactory collectionFactory) : IDeviceInfoRepository
     {
-        private readonly CollectionReference _devicesCollection;
-
-        public DeviceInfoRepository(ICollectionFactory collectionFactory)
-        {
-            _devicesCollection = collectionFactory.GetDevicesCollection();
-        }
+        private readonly CollectionReference _devicesCollection = collectionFactory.GetDevicesCollection();
 
         public async Task<DocumentReference> CreateDeviceAsync(DeviceInfoModel device)
         {

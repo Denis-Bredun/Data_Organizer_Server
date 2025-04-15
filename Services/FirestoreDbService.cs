@@ -1,41 +1,30 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.DTOs;
+using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Services
 {
-    public class FirestoreDbService : IFirestoreDbService
+    public class FirestoreDbService(
+    IAccountLoginRepository accountLoginRepository,
+    IAccountLogoutRepository accountLogoutRepository,
+    IChangePasswordRepository changePasswordRepository,
+    IDeviceInfoRepository deviceInfoRepository,
+    INoteRepository noteRepository,
+    IUserRepository userRepository,
+    IUsersMetadataRepository usersMetadataRepository,
+    ILogger<FirestoreDbService> logger) : IFirestoreDbService
     {
-        private readonly IAccountLoginRepository _accountLoginRepository;
-        private readonly IAccountLogoutRepository _accountLogoutRepository;
-        private readonly IChangePasswordRepository _changePasswordRepository;
-        private readonly IDeviceInfoRepository _deviceInfoRepository;
-        private readonly INoteRepository _noteRepository;
-        private readonly IUserRepository _userRepository;
-        private readonly IUsersMetadataRepository _usersMetadataRepository;
-        private readonly ILogger<FirestoreDbService> _logger;
+        private readonly IAccountLoginRepository _accountLoginRepository = accountLoginRepository;
+        private readonly IAccountLogoutRepository _accountLogoutRepository = accountLogoutRepository;
+        private readonly IChangePasswordRepository _changePasswordRepository = changePasswordRepository;
+        private readonly IDeviceInfoRepository _deviceInfoRepository = deviceInfoRepository;
+        private readonly INoteRepository _noteRepository = noteRepository;
+        private readonly IUserRepository _userRepository = userRepository;
+        private readonly IUsersMetadataRepository _usersMetadataRepository = usersMetadataRepository;
+        private readonly ILogger<FirestoreDbService> _logger = logger;
 
-        public FirestoreDbService(
-            IAccountLoginRepository accountLoginRepository,
-            IAccountLogoutRepository accountLogoutRepository,
-            IChangePasswordRepository changePasswordRepository,
-            IDeviceInfoRepository deviceInfoRepository,
-            INoteRepository noteRepository,
-            IUserRepository userRepository,
-            IUsersMetadataRepository usersMetadataRepository,
-            ILogger<FirestoreDbService> logger)
-        {
-            _accountLoginRepository = accountLoginRepository;
-            _accountLogoutRepository = accountLogoutRepository;
-            _changePasswordRepository = changePasswordRepository;
-            _deviceInfoRepository = deviceInfoRepository;
-            _noteRepository = noteRepository;
-            _userRepository = userRepository;
-            _usersMetadataRepository = usersMetadataRepository;
-            _logger = logger;
-        }
-
-        public async Task<UserCreationRequest> CreateUserAsync(UserCreationRequest userCreationRequest)
+        public async Task<UserRequestDTO> CreateUserAsync(UserRequestDTO userCreationRequest)
         {
             var user = userCreationRequest.User;
             var userMetadata = userCreationRequest.UsersMetadata;
@@ -61,7 +50,7 @@ namespace Data_Organizer_Server.Services
             await _userRepository.UpdateUserAsync(user);
         }
 
-        public async Task<bool> RemoveUserAsync(UserCreationRequest request)
+        public async Task<bool> RemoveUserAsync(UserRequestDTO request)
         {
             var user = request.User;
 
@@ -78,7 +67,7 @@ namespace Data_Organizer_Server.Services
             return true;
         }
 
-        public async Task<ChangePassword?> CreateChangePasswordAsync(ChangePasswordCreationRequest request)
+        public async Task<ChangePassword?> CreateChangePasswordAsync(ChangePasswordRequestDTO request)
         {
             var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.Uid, request.DeviceInfo);
 
@@ -90,7 +79,7 @@ namespace Data_Organizer_Server.Services
             return changePassword;
         }
 
-        public async Task<AccountLogin?> CreateAccountLoginAsync(AccountLoginCreationRequest request)
+        public async Task<AccountLogin?> CreateAccountLoginAsync(AccountLoginRequestDTO request)
         {
             var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.UserId, request.DeviceInfo);
 
@@ -102,7 +91,7 @@ namespace Data_Organizer_Server.Services
             return accountLogin;
         }
 
-        public async Task<AccountLogout?> CreateAccountLogoutAsync(AccountLogoutCreationRequest request)
+        public async Task<AccountLogout?> CreateAccountLogoutAsync(AccountLogoutRequestDTO request)
         {
             var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.UserId, request.DeviceInfo);
 
@@ -118,6 +107,9 @@ namespace Data_Organizer_Server.Services
         {
             var deviceDocRef = await _deviceInfoRepository.CreateDeviceAsync(deviceInfo);
             var usersMetadataDocRef = await _usersMetadataRepository.GetUsersMetadataReferenceByUidAsync(userId);
+
+            // а если метаданные до этого не создавались? И то же самое с Update методом при удалении аккаунта
+
             return (deviceDocRef, usersMetadataDocRef);
         }
 

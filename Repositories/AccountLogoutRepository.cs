@@ -1,17 +1,12 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Models;
+﻿using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Repositories
 {
-    public class AccountLogoutRepository : IAccountLogoutRepository
+    public class AccountLogoutRepository(ICollectionFactory collectionFactory) : IAccountLogoutRepository
     {
-        private readonly CollectionReference _accountLogoutCollection;
-
-        public AccountLogoutRepository(ICollectionFactory collectionFactory)
-        {
-            _accountLogoutCollection = collectionFactory.GetAccountLogoutCollection();
-        }
+        private readonly CollectionReference _accountLogoutCollection = collectionFactory.GetAccountLogoutCollection();
 
         public async Task<DocumentReference> CreateAccountLogoutAsync(AccountLogout accountLogout)
         {

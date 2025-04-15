@@ -1,6 +1,6 @@
-﻿namespace Data_Organizer_Server.Models
+﻿namespace Data_Organizer_Server.DTOs
 {
-    public class TranscriptionFromFileRequest
+    public class AudiofileDTO
     {
         public IFormFile AudioFile { get; set; }
         public string LanguageCode { get; set; } = "uk-UA";
