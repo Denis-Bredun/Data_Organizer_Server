@@ -24,20 +24,29 @@ namespace Data_Organizer_Server.Services
         private readonly IUsersMetadataRepository _usersMetadataRepository = usersMetadataRepository;
         private readonly ILogger<FirestoreDbService> _logger = logger;
 
-        public async Task<UserRequestDTO> CreateUserAsync(UserRequestDTO userCreationRequest)
+        public async Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request)
         {
-            var user = userCreationRequest.User;
-            var userMetadata = userCreationRequest.UsersMetadata;
+            var user = request.User;
+            var userMetadata = request.UsersMetadata;
 
             if (userMetadata != null)
             {
+                var deviceInfo = request.CreationDevice;
+
+                if (deviceInfo == null)
+                    throw new ArgumentNullException("Metadata is stored, but parameter \"CreationDevice\" is null!");
+
+                var deviceInfoDocRef = await _deviceInfoRepository.CreateDeviceAsync(deviceInfo);
+
+                userMetadata.CreationDevice = deviceInfoDocRef;
+
                 var metadataRef = await _usersMetadataRepository.CreateMetadataAsync(userMetadata);
                 user.UsersMetadata = metadataRef;
                 _logger.LogInformation("Metadata document created successfully for user UID: {Uid}", user.Uid);
             }
 
             await _userRepository.CreateUserAsync(user);
-            return userCreationRequest;
+            return request;
         }
 
         public async Task<User> GetUserByUidAsync(string uid)
@@ -58,6 +67,15 @@ namespace Data_Organizer_Server.Services
             {
                 if (request.UsersMetadata == null)
                     return false;
+
+                var deviceInfo = request.DeletionDevice;
+
+                if (deviceInfo == null)
+                    throw new ArgumentNullException("Metadata is stored, but parameter \"CreationDevice\" is null!");
+
+                var deviceInfoDocRef = await _deviceInfoRepository.CreateDeviceAsync(deviceInfo);
+
+                request.UsersMetadata.DeletionDevice = deviceInfoDocRef;
 
                 await _usersMetadataRepository.UpdateMetadataAsync(user.Uid, request.UsersMetadata);
                 _logger.LogInformation("Metadata for user with UID '{Uid}' was updated before soft-delete.", user.Uid);

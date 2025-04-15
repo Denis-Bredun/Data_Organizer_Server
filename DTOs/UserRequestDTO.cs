@@ -6,6 +6,8 @@ namespace Data_Organizer_Server.DTOs
     {
         public User User { get; set; }
         public UsersMetadata UsersMetadata { get; set; }
+        public DeviceInfoModel? CreationDevice { get; set; }
+        public DeviceInfoModel? DeletionDevice { get; set; }
         public string Error { get; internal set; }
     }
 }
