@@ -13,10 +13,10 @@ namespace Data_Organizer_Server.Interfaces
         Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request);
         Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader);
         Task<IEnumerable<NoteHeader>> GetNoteHeadersByUidAsync(string uid);
-        Task<User> GetUserByUidAsync(string uid);
+        Task<UserMetadataFlagUpdateDTO> GetUserMetadataFlagAsync(UserMetadataFlagUpdateDTO request);
         Task RemoveNoteAsync(NoteHeader noteHeader);
         Task<bool> RemoveUserAsync(UserRequestDTO request);
         Task UpdateNoteAsync(Note note);
-        Task UpdateUsersIsMetadataStoredPropertyAsync(UserIsMetadataStoredPropertyUpdateDTO updateDTO);
+        Task SetMetadataStoredAsync(UserMetadataFlagUpdateDTO updateDTO);
     }
 }

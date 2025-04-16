@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Data_Organizer.DTOs
 {
-    public class UserIsMetadataStoredPropertyUpdateDTO
+    public class UserMetadataFlagUpdateDTO
     {
         [Required]
         [JsonPropertyName("uid")]

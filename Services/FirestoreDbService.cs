@@ -52,12 +52,14 @@ namespace Data_Organizer_Server.Services
             return request;
         }
 
-        public async Task<User> GetUserByUidAsync(string uid)
+        public async Task<UserMetadataFlagUpdateDTO> GetUserMetadataFlagAsync(UserMetadataFlagUpdateDTO request)
         {
-            return await _userRepository.GetUserByUidAsync(uid);
+            var user = await _userRepository.GetUserByUidAsync(request.Uid);
+            request.IsMetadataStored = user.IsMetadataStored;
+            return request;
         }
 
-        public async Task UpdateUsersIsMetadataStoredPropertyAsync(UserIsMetadataStoredPropertyUpdateDTO updateDTO)
+        public async Task SetMetadataStoredAsync(UserMetadataFlagUpdateDTO updateDTO)
         {
             var user = await _userRepository.GetUserByUidAsync(updateDTO.Uid);
 

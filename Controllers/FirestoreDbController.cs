@@ -51,75 +51,87 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpGet("user/{uid}")]
-        public async Task<IActionResult> GetUserByUidAsync(string uid)
+        [HttpGet("users/{uid}/metadata-flag")]
+        public async Task<IActionResult> GetUserMetadataFlagAsync([FromRoute] string uid)
         {
+            var request = new UserMetadataFlagUpdateDTO { Uid = uid };
+
             if (string.IsNullOrWhiteSpace(uid))
             {
-                var error = "UID is required to fetch user.";
-                _logger.LogError("Invalid UID parameter: {Error}", error);
-                return BadRequest(new { Error = error });
+                request.Error = "UID is required to retrieve metadata flag.";
+                _logger.LogError("Invalid UID parameter: {Error}", request.Error);
+                return BadRequest(request);
             }
 
             try
             {
-                var user = await _firestoreDbService.GetUserByUidAsync(uid);
-                _logger.LogInformation("User with UID '{Uid}' retrieved successfully.", uid);
-                return Ok(user);
+                var result = await _firestoreDbService.GetUserMetadataFlagAsync(request);
+                _logger.LogInformation("Retrieved metadata flag for user UID '{Uid}' = {Flag}", request.Uid, result.IsMetadataStored);
+                return Ok(result);
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogError(ex, "UID was null or empty while retrieving user.");
-                return BadRequest(new { Error = ex.Message });
+                request.Error = ex.Message;
+                _logger.LogError(ex, "UID was null or empty.");
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, "User with UID '{Uid}' not found.", uid);
-                return NotFound(new { Error = ex.Message });
+                request.Error = ex.Message;
+                _logger.LogError(ex, "User with UID '{Uid}' not found.", request.Uid);
+                return NotFound(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error occurred while retrieving user with UID '{Uid}'.", uid);
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error retrieving metadata flag for UID '{Uid}'.", request.Uid);
+                return StatusCode(500, request);
             }
         }
 
-        [HttpPut("update-users-isMetadataStored-property")]
-        public async Task<IActionResult> UpdateUsersIsMetadataStoredPropertyAsync([FromBody] UserIsMetadataStoredPropertyUpdateDTO updateDTO)
+        [HttpPost("users/{uid}/metadata-flag")]
+        public async Task<IActionResult> SetUserMetadataFlagAsync([FromRoute] string uid, [FromBody] UserMetadataFlagUpdateDTO request)
         {
-            if (updateDTO == null)
+            if (request == null)
             {
                 var error = "UserIsMetadataStoredPropertyUpdateDTO object is required for update.";
                 _logger.LogError("Received null updateDTO in update request: {Error}", error);
-                return BadRequest(new UserIsMetadataStoredPropertyUpdateDTO
+                return BadRequest(new UserMetadataFlagUpdateDTO
                 {
                     Error = error
                 });
             }
 
+            if (string.IsNullOrWhiteSpace(request.Uid))
+            {
+                request.Error = "UID is required to update metadata flag.";
+                _logger.LogError("Invalid UID parameter: {Error}", request.Error);
+                return BadRequest(request);
+            }
+
             try
             {
-                await _firestoreDbService.UpdateUsersIsMetadataStoredPropertyAsync(updateDTO);
-                _logger.LogInformation("User's isMetadataStored property with UID '{Uid}' was successfully updated.", updateDTO.Uid);
-                return Ok(updateDTO);
+                await _firestoreDbService.SetMetadataStoredAsync(request);
+                _logger.LogInformation("User's isMetadataStored property with UID '{Uid}' was successfully updated.", request.Uid);
+                return Ok(request);
             }
             catch (ArgumentNullException ex)
             {
-                updateDTO.Error = ex.Message;
+                request.Error = ex.Message;
                 _logger.LogError(ex, "User was null during update.");
-                return BadRequest(updateDTO);
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
-                updateDTO.Error = ex.Message;
-                _logger.LogError(ex, "User with UID '{Uid}' was not found during update.", updateDTO?.Uid);
-                return NotFound(updateDTO);
+                request.Error = ex.Message;
+                _logger.LogError(ex, "User with UID '{Uid}' was not found during update.", request?.Uid);
+                return NotFound(request);
             }
             catch (Exception ex)
             {
-                updateDTO.Error = "An internal server error occurred. Please try again later.";
-                _logger.LogError(ex, "Unexpected error occurred while updating user with UID '{Uid}'.", updateDTO?.Uid);
-                return StatusCode(500, updateDTO);
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error occurred while updating user with UID '{Uid}'.", request?.Uid);
+                return StatusCode(500, request);
             }
         }
 
