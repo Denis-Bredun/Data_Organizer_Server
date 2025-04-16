@@ -1,4 +1,5 @@
-﻿using Data_Organizer_Server.Entities;
+﻿using Data_Organizer.DTOs;
+using Data_Organizer_Server.Entities;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
@@ -7,11 +8,11 @@ namespace Data_Organizer_Server.DTOs
     public class UserRequestDTO
     {
         [Required]
-        [JsonPropertyName("user")]
-        public User User { get; set; } = default!;
+        [JsonPropertyName("userDTO")]
+        public UserDTO UserDTO { get; set; } = default!;
 
-        [JsonPropertyName("usersMetadata")]
-        public UsersMetadata? UsersMetadata { get; set; }
+        [JsonPropertyName("usersMetadataDTO")]
+        public UsersMetadataDTO? UsersMetadataDTO { get; set; }
 
         [JsonPropertyName("creationDevice")]
         public DeviceInfoModel? CreationDevice { get; set; }

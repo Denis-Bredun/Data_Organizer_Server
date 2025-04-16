@@ -13,7 +13,8 @@ namespace Data_Organizer_Server.Services
     INoteRepository noteRepository,
     IUserRepository userRepository,
     IUsersMetadataRepository usersMetadataRepository,
-    ILogger<FirestoreDbService> logger) : IFirestoreDbService
+    ILogger<FirestoreDbService> logger,
+    IMappingService mappingService) : IFirestoreDbService
     {
         private readonly IAccountLoginRepository _accountLoginRepository = accountLoginRepository;
         private readonly IAccountLogoutRepository _accountLogoutRepository = accountLogoutRepository;
@@ -23,13 +24,13 @@ namespace Data_Organizer_Server.Services
         private readonly IUserRepository _userRepository = userRepository;
         private readonly IUsersMetadataRepository _usersMetadataRepository = usersMetadataRepository;
         private readonly ILogger<FirestoreDbService> _logger = logger;
+        private readonly IMappingService _mappingService = mappingService;
 
         public async Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request)
         {
-            var user = request.User;
-            var userMetadata = request.UsersMetadata;
+            var user = await _mappingService.MapToUserAsync(request.UserDTO);
 
-            if (userMetadata != null)
+            if (request.UsersMetadataDTO != null)
             {
                 var deviceInfo = request.CreationDevice;
 
@@ -38,9 +39,10 @@ namespace Data_Organizer_Server.Services
 
                 var deviceInfoDocRef = await _deviceInfoRepository.CreateDeviceAsync(deviceInfo);
 
-                userMetadata.CreationDevice = deviceInfoDocRef;
+                var metadata = await _mappingService.MapToMetadataAsync(request.UsersMetadataDTO);
+                metadata.CreationDevice = deviceInfoDocRef;
 
-                var metadataRef = await _usersMetadataRepository.CreateMetadataAsync(userMetadata);
+                var metadataRef = await _usersMetadataRepository.CreateMetadataAsync(metadata);
                 user.UsersMetadata = metadataRef;
                 _logger.LogInformation("Metadata document created successfully for user UID: {Uid}", user.Uid);
             }
@@ -61,23 +63,24 @@ namespace Data_Organizer_Server.Services
 
         public async Task<bool> RemoveUserAsync(UserRequestDTO request)
         {
-            var user = request.User;
+            var user = await _mappingService.MapToUserAsync(request.UserDTO);
 
             if (user.IsMetadataStored)
             {
-                if (request.UsersMetadata == null)
+                if (request.UsersMetadataDTO == null)
                     return false;
 
                 var deviceInfo = request.DeletionDevice;
 
                 if (deviceInfo == null)
-                    throw new ArgumentNullException("Metadata is stored, but parameter \"CreationDevice\" is null!");
+                    throw new ArgumentNullException("Metadata is stored, but parameter \"DeletionDevice\" is null!");
 
                 var deviceInfoDocRef = await _deviceInfoRepository.CreateDeviceAsync(deviceInfo);
 
-                request.UsersMetadata.DeletionDevice = deviceInfoDocRef;
+                var metadata = await _mappingService.MapToMetadataAsync(request.UsersMetadataDTO);
+                metadata.DeletionDevice = deviceInfoDocRef;
 
-                await _usersMetadataRepository.UpdateMetadataAsync(user.Uid, request.UsersMetadata);
+                await _usersMetadataRepository.UpdateMetadataAsync(user.Uid, metadata);
                 _logger.LogInformation("Metadata for user with UID '{Uid}' was updated before soft-delete.", user.Uid);
             }
 

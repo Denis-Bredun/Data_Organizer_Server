@@ -112,6 +112,7 @@ namespace Data_Organizer_Server
             services.AddScoped<IChangePasswordRepository, ChangePasswordRepository>();
             services.AddScoped<IAccountLoginRepository, AccountLoginRepository>();
             services.AddScoped<IAccountLogoutRepository, AccountLogoutRepository>();
+            services.AddScoped<IMappingService, MappingService>();
         }
 
         private static void ConfigureMiddleware(WebApplication app)

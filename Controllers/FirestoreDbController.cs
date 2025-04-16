@@ -20,7 +20,7 @@ namespace Data_Organizer_Server.Controllers
         [HttpPost("create-user")]
         public async Task<IActionResult> CreateUserAsync([FromBody] UserRequestDTO userCreationRequest)
         {
-            if (userCreationRequest == null || userCreationRequest.User == null)
+            if (userCreationRequest == null || userCreationRequest.UserDTO == null)
             {
                 var error = "Empty request or missing user data!";
                 _logger.LogError("Received invalid user creation request: {Error}", error);
@@ -33,7 +33,7 @@ namespace Data_Organizer_Server.Controllers
             try
             {
                 var result = await _firestoreDbService.CreateUserAsync(userCreationRequest);
-                _logger.LogInformation("User created successfully with UID: {Uid}", result.User.Uid);
+                _logger.LogInformation("User created successfully with UID: {Uid}", result.UserDTO.Uid);
                 return Ok(result);
             }
             catch (ArgumentNullException ex)
@@ -119,7 +119,7 @@ namespace Data_Organizer_Server.Controllers
         [HttpDelete("remove-user")]
         public async Task<IActionResult> RemoveUserAsync([FromBody] UserRequestDTO request)
         {
-            if (request == null || request.User == null)
+            if (request == null || request.UserDTO == null)
             {
                 var error = "Invalid request. User information is missing.";
                 _logger.LogError("Invalid RemoveUser request: {Error}", error);
@@ -132,12 +132,12 @@ namespace Data_Organizer_Server.Controllers
 
                 if (!result)
                 {
-                    var metadataError = $"User '{request.User.Uid}' has metadata stored, but UsersMetadata object is null in request.";
+                    var metadataError = $"User '{request.UserDTO.Uid}' has metadata stored, but UsersMetadata object is null in request.";
                     _logger.LogWarning(metadataError);
                     return BadRequest(new { Error = metadataError });
                 }
 
-                _logger.LogInformation("User with UID '{Uid}' was successfully soft-deleted.", request.User.Uid);
+                _logger.LogInformation("User with UID '{Uid}' was successfully soft-deleted.", request.UserDTO.Uid);
                 return Ok(request);
             }
             catch (ArgumentNullException ex)
@@ -147,12 +147,12 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User not found for UID '{Uid}'.", request.User.Uid);
+                _logger.LogWarning(ex, "User not found for UID '{Uid}'.", request.UserDTO.Uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error during removal of user with UID '{Uid}'.", request.User.Uid);
+                _logger.LogError(ex, "Unexpected error during removal of user with UID '{Uid}'.", request.UserDTO.Uid);
                 return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
             }
         }

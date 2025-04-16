@@ -3,14 +3,9 @@ using Google.Cloud.Firestore;
 
 namespace Data_Organizer_Server.Services
 {
-    public class CollectionFactory : ICollectionFactory
+    public class CollectionFactory(FirestoreDb firestoreDb) : ICollectionFactory
     {
-        private readonly FirestoreDb _firestoreDb;
-
-        public CollectionFactory(FirestoreDb firestoreDb)
-        {
-            _firestoreDb = firestoreDb;
-        }
+        private readonly FirestoreDb _firestoreDb = firestoreDb;
 
         public CollectionReference GetAccountLoginCollection() => _firestoreDb.Collection("AccountLogin");
 
