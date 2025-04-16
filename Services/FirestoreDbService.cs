@@ -1,4 +1,5 @@
-﻿using Data_Organizer_Server.DTOs;
+﻿using Data_Organizer.DTOs;
+using Data_Organizer_Server.DTOs;
 using Data_Organizer_Server.Entities;
 using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
@@ -56,8 +57,12 @@ namespace Data_Organizer_Server.Services
             return await _userRepository.GetUserByUidAsync(uid);
         }
 
-        public async Task UpdateUserAsync(User user)
+        public async Task UpdateUsersIsMetadataStoredPropertyAsync(UserIsMetadataStoredPropertyUpdateDTO updateDTO)
         {
+            var user = await _userRepository.GetUserByUidAsync(updateDTO.Uid);
+
+            user.IsMetadataStored = updateDTO.IsMetadataStored;
+
             await _userRepository.UpdateUserAsync(user);
         }
 

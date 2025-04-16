@@ -1,4 +1,5 @@
-﻿using Data_Organizer_Server.DTOs;
+﻿using Data_Organizer.DTOs;
+using Data_Organizer_Server.DTOs;
 using Data_Organizer_Server.Entities;
 
 namespace Data_Organizer_Server.Interfaces
@@ -16,6 +17,6 @@ namespace Data_Organizer_Server.Interfaces
         Task RemoveNoteAsync(NoteHeader noteHeader);
         Task<bool> RemoveUserAsync(UserRequestDTO request);
         Task UpdateNoteAsync(Note note);
-        Task UpdateUserAsync(User user);
+        Task UpdateUsersIsMetadataStoredPropertyAsync(UserIsMetadataStoredPropertyUpdateDTO updateDTO);
     }
 }

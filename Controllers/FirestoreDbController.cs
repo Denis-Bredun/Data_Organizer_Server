@@ -1,4 +1,5 @@
-﻿using Data_Organizer_Server.DTOs;
+﻿using Data_Organizer.DTOs;
+using Data_Organizer_Server.DTOs;
 using Data_Organizer_Server.Entities;
 using Data_Organizer_Server.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -73,7 +74,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User with UID '{Uid}' not found.", uid);
+                _logger.LogError(ex, "User with UID '{Uid}' not found.", uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -83,36 +84,42 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpPut("update-user")]
-        public async Task<IActionResult> UpdateUserAsync([FromBody] Entities.User user)
+        [HttpPut("update-users-isMetadataStored-property")]
+        public async Task<IActionResult> UpdateUsersIsMetadataStoredPropertyAsync([FromBody] UserIsMetadataStoredPropertyUpdateDTO updateDTO)
         {
-            if (user == null)
+            if (updateDTO == null)
             {
-                var error = "User object is required for update.";
-                _logger.LogError("Received null user in update request: {Error}", error);
-                return BadRequest(new { Error = error });
+                var error = "UserIsMetadataStoredPropertyUpdateDTO object is required for update.";
+                _logger.LogError("Received null updateDTO in update request: {Error}", error);
+                return BadRequest(new UserIsMetadataStoredPropertyUpdateDTO
+                {
+                    Error = error
+                });
             }
 
             try
             {
-                await _firestoreDbService.UpdateUserAsync(user);
-                _logger.LogInformation("User with UID '{Uid}' was successfully updated.", user.Uid);
-                return Ok(user);
+                await _firestoreDbService.UpdateUsersIsMetadataStoredPropertyAsync(updateDTO);
+                _logger.LogInformation("User's isMetadataStored property with UID '{Uid}' was successfully updated.", updateDTO.Uid);
+                return Ok(updateDTO);
             }
             catch (ArgumentNullException ex)
             {
+                updateDTO.Error = ex.Message;
                 _logger.LogError(ex, "User was null during update.");
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(updateDTO);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User with UID '{Uid}' was not found during update.", user?.Uid);
-                return NotFound(new { Error = ex.Message });
+                updateDTO.Error = ex.Message;
+                _logger.LogError(ex, "User with UID '{Uid}' was not found during update.", updateDTO?.Uid);
+                return NotFound(updateDTO);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error occurred while updating user with UID '{Uid}'.", user?.Uid);
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                updateDTO.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error occurred while updating user with UID '{Uid}'.", updateDTO?.Uid);
+                return StatusCode(500, updateDTO);
             }
         }
 
@@ -133,7 +140,7 @@ namespace Data_Organizer_Server.Controllers
                 if (!result)
                 {
                     var metadataError = $"User '{request.UserDTO.Uid}' has metadata stored, but UsersMetadata object is null in request.";
-                    _logger.LogWarning(metadataError);
+                    _logger.LogError(metadataError);
                     return BadRequest(new { Error = metadataError });
                 }
 
@@ -147,7 +154,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User not found for UID '{Uid}'.", request.UserDTO.Uid);
+                _logger.LogError(ex, "User not found for UID '{Uid}'.", request.UserDTO.Uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -183,7 +190,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User not found for UID '{Uid}'.", request.Uid);
+                _logger.LogError(ex, "User not found for UID '{Uid}'.", request.Uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -219,7 +226,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User not found for UserID '{UserId}'.", request.UserId);
+                _logger.LogError(ex, "User not found for UserID '{UserId}'.", request.UserId);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -255,7 +262,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "User not found for UserID '{UserId}'.", request.UserId);
+                _logger.LogError(ex, "User not found for UserID '{UserId}'.", request.UserId);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -316,7 +323,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "No note headers found for UID '{Uid}'.", uid);
+                _logger.LogError(ex, "No note headers found for UID '{Uid}'.", uid);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -378,7 +385,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Note header not found during remove operation.");
+                _logger.LogError(ex, "Note header not found during remove operation.");
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
@@ -411,7 +418,7 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Note header not found during update. UID: {Uid}, Time: {Time}", note.Header?.UserId, note.Header?.CreationTime);
+                _logger.LogError(ex, "Note header not found during update. UID: {Uid}, Time: {Time}", note.Header?.UserId, note.Header?.CreationTime);
                 return NotFound(new { Error = ex.Message });
             }
             catch (Exception ex)
