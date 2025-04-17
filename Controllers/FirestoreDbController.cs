@@ -51,15 +51,20 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpGet("user/{uid}/metadata-flag")]
-        public async Task<IActionResult> GetUserMetadataFlagAsync([FromRoute] string uid)
+        [HttpPost("user/getmetadataflag")]
+        public async Task<IActionResult> GetUserMetadataFlagAsync([FromBody] UserMetadataFlagUpdateDTO request)
         {
-            var request = new UserMetadataFlagUpdateDTO { Uid = uid };
+            if (request == null)
+            {
+                var error = "Request body is required.";
+                _logger.LogError("Null request received: {Error}", error);
+                return BadRequest(new UserMetadataFlagUpdateDTO { Error = error });
+            }
 
-            if (string.IsNullOrWhiteSpace(uid))
+            if (string.IsNullOrWhiteSpace(request.Uid))
             {
                 request.Error = "UID is required to retrieve metadata flag.";
-                _logger.LogError("Invalid UID parameter: {Error}", request.Error);
+                _logger.LogError("Invalid UID: {Error}", request.Error);
                 return BadRequest(request);
             }
 
@@ -89,30 +94,27 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpPost("user/{uid}/metadata-flag")]
-        public async Task<IActionResult> SetUserMetadataFlagAsync([FromRoute] string uid, [FromBody] UserMetadataFlagUpdateDTO request)
+        [HttpPost("user/setmetadataflag")]
+        public async Task<IActionResult> SetUserMetadataFlagAsync([FromBody] UserMetadataFlagUpdateDTO request)
         {
             if (request == null)
             {
-                var error = "UserIsMetadataStoredPropertyUpdateDTO object is required for update.";
-                _logger.LogError("Received null updateDTO in update request: {Error}", error);
-                return BadRequest(new UserMetadataFlagUpdateDTO
-                {
-                    Error = error
-                });
+                var error = "Request body is required.";
+                _logger.LogError("Null updateDTO received: {Error}", error);
+                return BadRequest(new UserMetadataFlagUpdateDTO { Error = error });
             }
 
             if (string.IsNullOrWhiteSpace(request.Uid))
             {
                 request.Error = "UID is required to update metadata flag.";
-                _logger.LogError("Invalid UID parameter: {Error}", request.Error);
+                _logger.LogError("Invalid UID: {Error}", request.Error);
                 return BadRequest(request);
             }
 
             try
             {
                 await _firestoreDbService.SetMetadataStoredAsync(request);
-                _logger.LogInformation("User's isMetadataStored property with UID '{Uid}' was successfully updated.", request.Uid);
+                _logger.LogInformation("User's isMetadataStored flag updated successfully for UID '{Uid}'.", request.Uid);
                 return Ok(request);
             }
             catch (ArgumentNullException ex)
@@ -124,13 +126,13 @@ namespace Data_Organizer_Server.Controllers
             catch (KeyNotFoundException ex)
             {
                 request.Error = ex.Message;
-                _logger.LogError(ex, "User with UID '{Uid}' was not found during update.", request?.Uid);
+                _logger.LogError(ex, "User with UID '{Uid}' not found during update.", request.Uid);
                 return NotFound(request);
             }
             catch (Exception ex)
             {
                 request.Error = "An internal server error occurred. Please try again later.";
-                _logger.LogError(ex, "Unexpected error occurred while updating user with UID '{Uid}'.", request?.Uid);
+                _logger.LogError(ex, "Unexpected error updating user with UID '{Uid}'.", request.Uid);
                 return StatusCode(500, request);
             }
         }
