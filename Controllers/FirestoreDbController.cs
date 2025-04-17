@@ -51,7 +51,50 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpPost("user/getmetadataflag")]
+        [HttpPost("get-metadata")]
+        public async Task<IActionResult> GetUserMetadataAsync([FromBody] UsersMetadataDTO request)
+        {
+            if (request == null)
+            {
+                var error = "Request body is required.";
+                _logger.LogError("Null request received: {Error}", error);
+                return BadRequest(new UsersMetadataDTO { Error = error });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Uid))
+            {
+                request.Error = "UID is required to retrieve metadata.";
+                _logger.LogError("Invalid UID: {Error}", request.Error);
+                return BadRequest(request);
+            }
+
+            try
+            {
+                var result = await _firestoreDbService.GetUserMetadataAsync(request);
+                _logger.LogInformation("Retrieved metadata for user UID '{Uid}'", request.Uid);
+                return Ok(result);
+            }
+            catch (ArgumentNullException ex)
+            {
+                request.Error = ex.Message;
+                _logger.LogError(ex, "UID was null or empty.");
+                return BadRequest(request);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                request.Error = ex.Message;
+                _logger.LogError(ex, "User metadata for UID '{Uid}' not found.", request.Uid);
+                return NotFound(request);
+            }
+            catch (Exception ex)
+            {
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error retrieving metadata for UID '{Uid}'.", request.Uid);
+                return StatusCode(500, request);
+            }
+        }
+
+        [HttpPost("get-metadata-flag")]
         public async Task<IActionResult> GetUserMetadataFlagAsync([FromBody] UserMetadataFlagUpdateDTO request)
         {
             if (request == null)
@@ -94,7 +137,7 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpPost("user/setmetadataflag")]
+        [HttpPost("set-metadata-flag")]
         public async Task<IActionResult> SetUserMetadataFlagAsync([FromBody] UserMetadataFlagUpdateDTO request)
         {
             if (request == null)

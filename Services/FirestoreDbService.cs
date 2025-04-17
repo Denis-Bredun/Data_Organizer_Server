@@ -59,6 +59,21 @@ namespace Data_Organizer_Server.Services
             return request;
         }
 
+        public async Task<UsersMetadataDTO> GetUserMetadataAsync(UsersMetadataDTO request)
+        {
+            var metadataDocRef = await _usersMetadataRepository.GetUsersMetadataReferenceByUidAsync(request.Uid);
+
+            var snapshot = await metadataDocRef.GetSnapshotAsync();
+
+            var metadata = snapshot.ConvertTo<UsersMetadata>();
+
+            var metadataDTO = _mappingService.MapMetadata(metadata);
+
+            metadataDTO.Uid = request.Uid;
+
+            return metadataDTO;
+        }
+
         public async Task SetMetadataStoredAsync(UserMetadataFlagUpdateDTO updateDTO)
         {
             var user = await _userRepository.GetUserByUidAsync(updateDTO.Uid);
