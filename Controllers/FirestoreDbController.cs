@@ -51,7 +51,7 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpGet("users/{uid}/metadata-flag")]
+        [HttpGet("user/{uid}/metadata-flag")]
         public async Task<IActionResult> GetUserMetadataFlagAsync([FromRoute] string uid)
         {
             var request = new UserMetadataFlagUpdateDTO { Uid = uid };
@@ -89,7 +89,7 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpPost("users/{uid}/metadata-flag")]
+        [HttpPost("user/{uid}/metadata-flag")]
         public async Task<IActionResult> SetUserMetadataFlagAsync([FromRoute] string uid, [FromBody] UserMetadataFlagUpdateDTO request)
         {
             if (request == null)
