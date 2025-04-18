@@ -101,7 +101,7 @@ namespace Data_Organizer_Server
             services.AddEndpointsApiExplorer();
             //services.AddSwaggerGen();
             services.AddAuthorization();
-            services.AddScoped<IOpenAIService, OpenAIService>();
+            services.AddHttpClient<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
             services.AddScoped<ICollectionFactory, CollectionFactory>();
             services.AddScoped<IFirestoreDbService, FirestoreDbService>();

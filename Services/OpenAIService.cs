@@ -1,5 +1,5 @@
-﻿using Data_Organizer_Server.Interfaces;
-using Data_Organizer_Server.Entities;
+﻿using Data_Organizer_Server.Entities;
+using Data_Organizer_Server.Interfaces;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Message = Data_Organizer_Server.Entities.Message;
@@ -13,9 +13,9 @@ namespace Data_Organizer_Server.Services
 
         public const string ENDPOINT = "https://api.openai.com/v1/chat/completions";
 
-        public OpenAIService()
+        public OpenAIService(HttpClient httpClient)
         {
-            _httpClient = new HttpClient();
+            _httpClient = httpClient;
             _messages = new List<Message>();
         }
 
