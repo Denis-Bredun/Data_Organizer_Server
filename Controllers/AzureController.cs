@@ -7,14 +7,14 @@ namespace Data_Organizer_Server.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("transkriptor")]
-    public class TranskriptorController(
-    ITranskriptorService transcriptionService,
-    ILogger<TranskriptorController> logger) : ControllerBase
+    [Route("azure")]
+    public class AzureController(
+    IAzureService transcriptionService,
+    ILogger<AzureController> logger) : ControllerBase
     {
         private const long MaxFileSize = 100 * 1024 * 1024;
-        private readonly ITranskriptorService _transcriptionService = transcriptionService;
-        private readonly ILogger<TranskriptorController> _logger = logger;
+        private readonly IAzureService _transcriptionService = transcriptionService;
+        private readonly ILogger<AzureController> _logger = logger;
 
         [HttpPost("transcribe-file")]
         [RequestSizeLimit(MaxFileSize)]

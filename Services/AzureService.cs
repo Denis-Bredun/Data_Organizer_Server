@@ -4,12 +4,12 @@ using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace Data_Organizer_Server.Services
 {
-    public class TranskriptorService : ITranskriptorService
+    public class AzureService : IAzureService
     {
         private readonly string _subscriptionKey;
         private readonly string _region;
 
-        public TranskriptorService()
+        public AzureService()
         {
             _subscriptionKey = Environment.GetEnvironmentVariable("AZURE_SPEECH_KEY");
             _region = Environment.GetEnvironmentVariable("AZURE_SPEECH_REGION");
@@ -53,14 +53,14 @@ namespace Data_Organizer_Server.Services
         {
             convertedFilePath = null;
             var extension = Path.GetExtension(filePath).ToLowerInvariant();
-
+            
             if (extension == ".wav")
                 return filePath;
 
             convertedFilePath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString() + ".wav");
-
+            
             var ffmpegPath = "ffmpeg";
-
+            
             var startInfo = new System.Diagnostics.ProcessStartInfo
             {
                 FileName = ffmpegPath,
@@ -70,17 +70,17 @@ namespace Data_Organizer_Server.Services
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
-
+            
             using var process = new System.Diagnostics.Process { StartInfo = startInfo };
             process.Start();
             process.WaitForExit();
-
+            
             if (process.ExitCode != 0)
             {
                 var error = process.StandardError.ReadToEnd();
                 throw new Exception($"FFmpeg conversion failed: {error}");
             }
-
+            
             return convertedFilePath;
         }
     }
