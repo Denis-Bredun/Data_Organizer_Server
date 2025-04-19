@@ -110,7 +110,7 @@ namespace Data_Organizer_Server.Services
             return true;
         }
 
-        public async Task<ChangePassword?> CreateChangePasswordAsync(ChangePasswordRequestDTO request)
+        public async Task<ChangePasswordRequestDTO?> CreateChangePasswordAsync(ChangePasswordRequestDTO request)
         {
             var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.Uid, request.DeviceInfo);
 
@@ -119,7 +119,7 @@ namespace Data_Organizer_Server.Services
             changePassword.UsersMetadata = usersMetadataDocRef;
 
             await _changePasswordRepository.CreateChangePasswordAsync(changePassword);
-            return changePassword;
+            return request;
         }
 
         public async Task<AccountLogin?> CreateAccountLoginAsync(AccountLoginRequestDTO request)

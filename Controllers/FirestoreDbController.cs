@@ -241,9 +241,9 @@ namespace Data_Organizer_Server.Controllers
 
             try
             {
-                var changePassword = await _firestoreDbService.CreateChangePasswordAsync(request);
+                var changePasswordDTO = await _firestoreDbService.CreateChangePasswordAsync(request);
                 _logger.LogInformation("Password change request created successfully for UID: {Uid}", request.Uid);
-                return Ok(changePassword);
+                return Ok(changePasswordDTO);
             }
             catch (ArgumentNullException ex)
             {
