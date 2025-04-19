@@ -1,5 +1,4 @@
-﻿using Data_Organizer.DTOs;
-using Data_Organizer_Server.DTOs;
+﻿using Data_Organizer_Server.DTOs;
 using Data_Organizer_Server.Entities;
 
 namespace Data_Organizer_Server.Interfaces

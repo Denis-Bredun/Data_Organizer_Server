@@ -1,7 +1,7 @@
 ﻿using Data_Organizer_Server.Entities;
 using System.Text.Json.Serialization;
 
-namespace Data_Organizer.DTOs
+namespace Data_Organizer_Server.DTOs
 {
     public class UsersMetadataDTO
     {
