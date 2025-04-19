@@ -114,7 +114,7 @@ namespace Data_Organizer_Server.Services
         {
             var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.Uid, request.DeviceInfo);
 
-            var changePassword = request.ChangePassword;
+            var changePassword = _mappingService.MapToChangePasswordAsync(request.ChangePasswordDTO)?.Result;
             changePassword.Device = deviceDocRef;
             changePassword.UsersMetadata = usersMetadataDocRef;
 

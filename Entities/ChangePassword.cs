@@ -6,13 +6,13 @@ namespace Data_Organizer_Server.Entities
     public class ChangePassword
     {
         [FirestoreProperty]
-        public DocumentReference UsersMetadata { get; set; }
+        public DocumentReference? UsersMetadata { get; set; }
 
         [FirestoreProperty]
-        public string Hashcode { get; set; }
+        public string OldPassword { get; set; }
 
         [FirestoreProperty]
-        public DocumentReference Device { get; set; }
+        public DocumentReference? Device { get; set; }
 
         [FirestoreProperty]
         public Location Location { get; set; }

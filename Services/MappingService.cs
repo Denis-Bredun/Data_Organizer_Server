@@ -86,5 +86,49 @@ namespace Data_Organizer_Server.Services
                 DeletionLocation = dto.DeletionLocation
             };
         }
+
+        public ChangePasswordDTO MapChangePassword(ChangePassword model) => new ChangePasswordDTO
+        {
+            UsersMetadataId = model.UsersMetadata?.Id,
+            OldPassword = model.OldPassword,
+            DeviceId = model.Device?.Id,
+            Location = model.Location,
+            Date = model.Date
+        };
+
+        public async Task<ChangePassword> MapToChangePasswordAsync(ChangePasswordDTO dto)
+        {
+            DocumentReference? metadataRef = null;
+            DocumentReference? deviceRef = null;
+
+            if (!string.IsNullOrEmpty(dto.UsersMetadataId))
+            {
+                var docRef = _usersMetadataCollection.Document(dto.UsersMetadataId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    metadataRef = docRef;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dto.DeviceId))
+            {
+                var docRef = _devicesCollection.Document(dto.DeviceId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    deviceRef = docRef;
+                }
+            }
+
+            return new ChangePassword
+            {
+                UsersMetadata = metadataRef,
+                OldPassword = dto.OldPassword,
+                Device = deviceRef,
+                Location = dto.Location,
+                Date = dto.Date
+            };
+        }
     }
 }

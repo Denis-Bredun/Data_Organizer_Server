@@ -186,8 +186,8 @@ namespace Data_Organizer_Server.Controllers
             if (request == null || request.UserDTO == null)
             {
                 var error = "Invalid request. User information is missing.";
-                _logger.LogError("Invalid RemoveUser request: {Error}", error);
-                return BadRequest(new { Error = error });
+                _logger.LogError("Null request received: {Error}", error);
+                return BadRequest(new UserRequestDTO { Error = error });
             }
 
             try
@@ -196,9 +196,9 @@ namespace Data_Organizer_Server.Controllers
 
                 if (!result)
                 {
-                    var metadataError = $"User '{request.UserDTO.Uid}' has metadata stored, but UsersMetadata object is null in request.";
-                    _logger.LogError(metadataError);
-                    return BadRequest(new { Error = metadataError });
+                    request.Error = $"User '{request.UserDTO.Uid}' has metadata stored, but UsersMetadata object is null in request.";
+                    _logger.LogError("Metadata inconsistency during user removal: {Error}", request.Error);
+                    return BadRequest(request);
                 }
 
                 _logger.LogInformation("User with UID '{Uid}' was successfully soft-deleted.", request.UserDTO.Uid);
@@ -206,32 +206,37 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (ArgumentNullException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "Argument null error during user removal.");
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "User not found for UID '{Uid}'.", request.UserDTO.Uid);
-                return NotFound(new { Error = ex.Message });
+                return NotFound(request);
             }
             catch (Exception ex)
             {
+                request.Error = "An internal server error occurred. Please try again later.";
                 _logger.LogError(ex, "Unexpected error during removal of user with UID '{Uid}'.", request.UserDTO.Uid);
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                return StatusCode(500, request);
             }
         }
+
 
         [HttpPost("create-change-password")]
         public async Task<IActionResult> CreateChangePasswordAsync([FromBody] ChangePasswordRequestDTO request)
         {
             if (request == null ||
-                request.ChangePassword == null ||
+                request.ChangePasswordDTO == null ||
                 request.DeviceInfo == null ||
-                string.IsNullOrEmpty(request.Uid))
+                string.IsNullOrWhiteSpace(request.Uid))
             {
-                var error = "Empty request or missing data!";
-                _logger.LogError("Received invalid ChangePassword request: {Error}", error);
-                return BadRequest(new { Error = error });
+                request ??= new ChangePasswordRequestDTO();
+                request.Error = "Empty request or missing data!";
+                _logger.LogError("Received invalid ChangePassword request: {Error}", request.Error);
+                return BadRequest(request);
             }
 
             try
@@ -242,18 +247,21 @@ namespace Data_Organizer_Server.Controllers
             }
             catch (ArgumentNullException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "Invalid input data during password change request creation.");
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "User not found for UID '{Uid}'.", request.Uid);
-                return NotFound(new { Error = ex.Message });
+                return NotFound(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error during password change request creation.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error during password change request creation for UID '{Uid}'.", request.Uid);
+                return StatusCode(500, request);
             }
         }
 

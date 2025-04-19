@@ -8,14 +8,14 @@ namespace Data_Organizer_Server.DTOs
     {
         [Required]
         [JsonPropertyName("userId")]
-        public string UserId { get; set; } = default!;
+        public string UserId { get; set; }
 
         [Required]
         [JsonPropertyName("accountLogout")]
-        public AccountLogout AccountLogout { get; set; } = default!;
+        public AccountLogout AccountLogout { get; set; }
 
         [Required]
         [JsonPropertyName("deviceInfo")]
-        public DeviceInfoModel DeviceInfo { get; set; } = default!;
+        public DeviceInfoModel DeviceInfo { get; set; }
     }
 }

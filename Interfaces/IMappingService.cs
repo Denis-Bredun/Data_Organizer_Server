@@ -10,5 +10,7 @@ namespace Data_Organizer_Server.Interfaces
 
         Task<User> MapToUserAsync(UserDTO dto);
         Task<UsersMetadata> MapToMetadataAsync(UsersMetadataDTO dto);
+        ChangePasswordDTO MapChangePassword(ChangePassword model);
+        Task<ChangePassword> MapToChangePasswordAsync(ChangePasswordDTO dto);
     }
 }
