@@ -1,89 +1,46 @@
 ﻿using Data_Organizer_Server.Interfaces;
-using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
+using Microsoft.CognitiveServices.Speech;
+using Microsoft.CognitiveServices.Speech.Audio;
 
 namespace Data_Organizer_Server.Services
 {
     public class TranskriptorService : ITranskriptorService
     {
-        private readonly HttpClient _httpClient;
-        private readonly IHttpClientFactory _httpClientFactory;
-        private readonly string _apiKey;
+        private readonly string _subscriptionKey;
+        private readonly string _region;
 
-        public const string UPLOAD_URL_ENDPOINT = "https://api.tor.app/developer/transcription/local_file/get_upload_url";
-        public const string INITIATE_TRANSCRIPTION_ENDPOINT = "https://api.tor.app/developer/transcription/local_file/initiate_transcription";
-
-        public TranskriptorService(HttpClient httpClient, IHttpClientFactory httpClientFactory)
+        public TranskriptorService()
         {
-            _httpClient = httpClient;
-            _httpClientFactory = httpClientFactory;
-            _apiKey = Environment.GetEnvironmentVariable("TRANSKRIPTOR_API_KEY");
+            _subscriptionKey = Environment.GetEnvironmentVariable("AZURE_SPEECH_KEY");
+            _region = Environment.GetEnvironmentVariable("AZURE_SPEECH_REGION");
 
-            if (string.IsNullOrWhiteSpace(_apiKey))
-                throw new InvalidOperationException("Transkriptor API key is not set in environment variables.");
-
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+            if (string.IsNullOrWhiteSpace(_subscriptionKey) || string.IsNullOrWhiteSpace(_region))
+                throw new InvalidOperationException("Azure Speech subscription key or region is not set in environment variables.");
         }
 
         public async Task<string> TranscribeFileAsync(string audioFilePath, string languageCode)
         {
-            if (string.IsNullOrWhiteSpace(audioFilePath) || !File.Exists(audioFilePath))
-                throw new FileNotFoundException("Audio file not found.", audioFilePath);
-
             string convertedFilePath = null;
-
             try
             {
-                string filePathToUse = ConvertToWavIfNeeded(audioFilePath, out convertedFilePath);
-                string fileName = Path.GetFileName(filePathToUse);
+                string inputFile = ConvertToWavIfNeeded(audioFilePath, out convertedFilePath);
 
-                var uploadRequest = new { file_name = fileName };
-                var uploadContent = new StringContent(JsonSerializer.Serialize(uploadRequest), Encoding.UTF8, "application/json");
+                var config = SpeechConfig.FromSubscription(_subscriptionKey, _region);
+                config.SpeechRecognitionLanguage = languageCode;
+                using var audioInput = AudioConfig.FromWavFileInput(inputFile);
+                using var recognizer = new SpeechRecognizer(config, audioInput);
+                var result = await recognizer.RecognizeOnceAsync();
 
-                var uploadResponse = await _httpClient.PostAsync(UPLOAD_URL_ENDPOINT, uploadContent);
-                uploadResponse.EnsureSuccessStatusCode();
-
-                var uploadJson = await uploadResponse.Content.ReadAsStringAsync();
-                var uploadDoc = JsonDocument.Parse(uploadJson);
-                string uploadUrl = uploadDoc.RootElement.GetProperty("upload_url").GetString();
-                string publicUrl = uploadDoc.RootElement.GetProperty("public_url").GetString();
-
-                var uploadClient = _httpClientFactory.CreateClient();
-                await using (var fileStream = File.OpenRead(filePathToUse))
-                using (var fileContent = new StreamContent(fileStream))
+                return result.Reason switch
                 {
-                    var fileUploadResponse = await uploadClient.PutAsync(uploadUrl, fileContent);
-                    fileUploadResponse.EnsureSuccessStatusCode();
-                }
-
-                var transcriptionRequest = new
-                {
-                    url = publicUrl,
-                    language = languageCode,
-                    service = "Standard"
+                    ResultReason.RecognizedSpeech => result.Text,
+                    ResultReason.NoMatch => throw new Exception("Speech could not be recognized."),
+                    _ => throw new Exception($"Recognition error: {result.Reason}")
                 };
-
-                var transcriptionContent = new StringContent(JsonSerializer.Serialize(transcriptionRequest), Encoding.UTF8, "application/json");
-                var transcriptionResponse = await _httpClient.PostAsync(INITIATE_TRANSCRIPTION_ENDPOINT, transcriptionContent);
-                transcriptionResponse.EnsureSuccessStatusCode();
-
-                var transcriptionJson = await transcriptionResponse.Content.ReadAsStringAsync();
-                var transcriptionDoc = JsonDocument.Parse(transcriptionJson);
-
-                return transcriptionDoc.RootElement.GetProperty("message").GetString();
-            }
-            catch (HttpRequestException ex)
-            {
-                throw new Exception("HTTP request to Transkriptor failed!", ex);
-            }
-            catch (JsonException ex)
-            {
-                throw new Exception("Error parsing response from Transkriptor!", ex);
             }
             catch (Exception ex)
             {
-                throw new Exception("Unknown error in TranskriptorService!", ex);
+                throw new Exception("Error occurred during audio transcription in AzureAudioTranscriptionService.", ex);
             }
             finally
             {
