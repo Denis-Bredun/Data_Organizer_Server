@@ -6,8 +6,8 @@ namespace Data_Organizer_Server.Interfaces
 {
     public interface IFirestoreDbService
     {
-        Task<AccountLogin?> CreateAccountLoginAsync(AccountLoginRequestDTO request);
-        Task<AccountLogout?> CreateAccountLogoutAsync(AccountLogoutRequestDTO request);
+        Task<AccountLoginRequestDTO?> CreateAccountLoginAsync(AccountLoginRequestDTO request);
+        Task<AccountLogoutRequestDTO?> CreateAccountLogoutAsync(AccountLogoutRequestDTO request);
         Task<ChangePasswordRequestDTO?> CreateChangePasswordAsync(ChangePasswordRequestDTO request);
         Task<Note> CreateNoteAsync(Note note);
         Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request);

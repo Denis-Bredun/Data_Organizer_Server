@@ -288,35 +288,39 @@ namespace Data_Organizer_Server.Controllers
         public async Task<IActionResult> CreateAccountLoginAsync([FromBody] AccountLoginRequestDTO request)
         {
             if (request == null ||
-                request.AccountLogin == null ||
+                request.AccountLoginDTO == null ||
                 request.DeviceInfo == null ||
-                string.IsNullOrEmpty(request.UserId))
+                string.IsNullOrWhiteSpace(request.Uid))
             {
-                var error = "Empty request or missing data!";
-                _logger.LogError("Received invalid AccountLogin request: {Error}", error);
-                return BadRequest(new { Error = error });
+                request ??= new AccountLoginRequestDTO();
+                request.Error = "Empty request or missing data!";
+                _logger.LogError("Received invalid AccountLogin request: {Error}", request.Error);
+                return BadRequest(request);
             }
 
             try
             {
-                var accountLogin = await _firestoreDbService.CreateAccountLoginAsync(request);
-                _logger.LogInformation("Account login request created successfully for UserID: {UserId}", request.UserId);
-                return Ok(accountLogin);
+                var accountLoginDTO = await _firestoreDbService.CreateAccountLoginAsync(request);
+                _logger.LogInformation("Account login request created successfully for UserID: {UserId}", request.Uid);
+                return Ok(accountLoginDTO);
             }
             catch (ArgumentNullException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "Invalid input data during account login request creation.");
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, "User not found for UserID '{UserId}'.", request.UserId);
-                return NotFound(new { Error = ex.Message });
+                request.Error = ex.Message;
+                _logger.LogError(ex, "User not found for UserID '{UserId}'.", request.Uid);
+                return NotFound(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error during account login request creation.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error during account login request creation for UserID '{UserId}': {Message}", request.Uid, ex.Message);
+                return StatusCode(500, request);
             }
         }
 
@@ -324,35 +328,39 @@ namespace Data_Organizer_Server.Controllers
         public async Task<IActionResult> CreateAccountLogoutAsync([FromBody] AccountLogoutRequestDTO request)
         {
             if (request == null ||
-                request.AccountLogout == null ||
+                request.AccountLogoutDTO == null ||
                 request.DeviceInfo == null ||
-                string.IsNullOrEmpty(request.UserId))
+                string.IsNullOrWhiteSpace(request.Uid))
             {
-                var error = "Empty request or missing data!";
-                _logger.LogError("Received invalid AccountLogout request: {Error}", error);
-                return BadRequest(new { Error = error });
+                request ??= new AccountLogoutRequestDTO();
+                request.Error = "Empty request or missing data!";
+                _logger.LogError("Received invalid AccountLogout request: {Error}", request.Error);
+                return BadRequest(request);
             }
 
             try
             {
-                var accountLogout = await _firestoreDbService.CreateAccountLogoutAsync(request);
-                _logger.LogInformation("Account logout request created successfully for UserID: {UserId}", request.UserId);
-                return Ok(accountLogout);
+                var accountLogoutDTO = await _firestoreDbService.CreateAccountLogoutAsync(request);
+                _logger.LogInformation("Account logout request created successfully for UserID: {UserId}", request.Uid);
+                return Ok(accountLogoutDTO);
             }
             catch (ArgumentNullException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "Invalid input data during account logout request creation.");
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, "User not found for UserID '{UserId}'.", request.UserId);
-                return NotFound(new { Error = ex.Message });
+                request.Error = ex.Message;
+                _logger.LogError(ex, "User not found for UserID '{UserId}'.", request.Uid);
+                return NotFound(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error during account logout request creation.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error during account logout request creation for UserID '{UserId}': {Message}", request.Uid, ex.Message);
+                return StatusCode(500, request);
             }
         }
 

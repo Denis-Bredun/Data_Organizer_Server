@@ -1,4 +1,5 @@
 ﻿using Data_Organizer.DTOs;
+using Data_Organizer_Server.DTOs;
 using Data_Organizer_Server.Entities;
 using Data_Organizer_Server.Interfaces;
 using Google.Cloud.Firestore;
@@ -126,6 +127,90 @@ namespace Data_Organizer_Server.Services
                 UsersMetadata = metadataRef,
                 OldPassword = dto.OldPassword,
                 Device = deviceRef,
+                Location = dto.Location,
+                Date = dto.Date
+            };
+        }
+
+        public AccountLoginDTO MapAccountLogin(AccountLogin model) => new AccountLoginDTO
+        {
+            UsersMetadataId = model.UsersMetadata?.Id,
+            DeviceId = model.Device?.Id,
+            Location = model.Location,
+            Date = model.Date
+        };
+
+        public async Task<AccountLogin> MapToAccountLoginAsync(AccountLoginDTO dto)
+        {
+            DocumentReference? metadataRef = null;
+            DocumentReference? deviceRef = null;
+
+            if (!string.IsNullOrEmpty(dto.UsersMetadataId))
+            {
+                var docRef = _usersMetadataCollection.Document(dto.UsersMetadataId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    metadataRef = docRef;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dto.DeviceId))
+            {
+                var docRef = _devicesCollection.Document(dto.DeviceId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    deviceRef = docRef;
+                }
+            }
+
+            return new AccountLogin
+            {
+                UsersMetadata = metadataRef!,
+                Device = deviceRef!,
+                Location = dto.Location,
+                Date = dto.Date
+            };
+        }
+
+        public AccountLogoutDTO MapAccountLogout(AccountLogout model) => new AccountLogoutDTO
+        {
+            UsersMetadataId = model.UsersMetadata?.Id,
+            DeviceId = model.Device?.Id,
+            Location = model.Location,
+            Date = model.Date
+        };
+
+        public async Task<AccountLogout> MapToAccountLogoutAsync(AccountLogoutDTO dto)
+        {
+            DocumentReference? metadataRef = null;
+            DocumentReference? deviceRef = null;
+
+            if (!string.IsNullOrEmpty(dto.UsersMetadataId))
+            {
+                var docRef = _usersMetadataCollection.Document(dto.UsersMetadataId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    metadataRef = docRef;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(dto.DeviceId))
+            {
+                var docRef = _devicesCollection.Document(dto.DeviceId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    deviceRef = docRef;
+                }
+            }
+
+            return new AccountLogout
+            {
+                UsersMetadata = metadataRef!,
+                Device = deviceRef!,
                 Location = dto.Location,
                 Date = dto.Date
             };

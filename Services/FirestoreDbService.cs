@@ -116,7 +116,7 @@ namespace Data_Organizer_Server.Services
         {
             var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.Uid, request.DeviceInfo);
 
-            var changePassword = _mappingService.MapToChangePasswordAsync(request.ChangePasswordDTO)?.Result;
+            var changePassword = await _mappingService.MapToChangePasswordAsync(request.ChangePasswordDTO);
             changePassword.Device = deviceDocRef;
             changePassword.UsersMetadata = usersMetadataDocRef;
 
@@ -126,28 +126,28 @@ namespace Data_Organizer_Server.Services
             return request;
         }
 
-        public async Task<AccountLogin?> CreateAccountLoginAsync(AccountLoginRequestDTO request)
+        public async Task<AccountLoginRequestDTO?> CreateAccountLoginAsync(AccountLoginRequestDTO request)
         {
-            var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.UserId, request.DeviceInfo);
+            var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.Uid, request.DeviceInfo);
 
-            var accountLogin = request.AccountLogin;
+            var accountLogin = await _mappingService.MapToAccountLoginAsync(request.AccountLoginDTO);
             accountLogin.Device = deviceDocRef;
             accountLogin.UsersMetadata = usersMetadataDocRef;
 
             await _accountLoginRepository.CreateAccountLoginAsync(accountLogin);
-            return accountLogin;
+            return request;
         }
 
-        public async Task<AccountLogout?> CreateAccountLogoutAsync(AccountLogoutRequestDTO request)
+        public async Task<AccountLogoutRequestDTO?> CreateAccountLogoutAsync(AccountLogoutRequestDTO request)
         {
-            var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.UserId, request.DeviceInfo);
+            var (deviceDocRef, usersMetadataDocRef) = await GetDeviceAndMetadataAsync(request.Uid, request.DeviceInfo);
 
-            var accountLogout = request.AccountLogout;
+            var accountLogout = await _mappingService.MapToAccountLogoutAsync(request.AccountLogoutDTO);
             accountLogout.Device = deviceDocRef;
             accountLogout.UsersMetadata = usersMetadataDocRef;
 
             await _accountLogoutRepository.CreateAccountLogoutAsync(accountLogout);
-            return accountLogout;
+            return request;
         }
 
         private async Task<(DocumentReference Device, DocumentReference UsersMetadata)> GetDeviceAndMetadataAsync(string userId, DeviceInfoModel deviceInfo)

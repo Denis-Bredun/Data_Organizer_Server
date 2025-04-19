@@ -7,15 +7,18 @@ namespace Data_Organizer_Server.DTOs
     public class AccountLogoutRequestDTO
     {
         [Required]
-        [JsonPropertyName("userId")]
-        public string UserId { get; set; }
+        [JsonPropertyName("uid")]
+        public string Uid { get; set; }
 
         [Required]
-        [JsonPropertyName("accountLogout")]
-        public AccountLogout AccountLogout { get; set; }
+        [JsonPropertyName("accountLogoutDTO")]
+        public AccountLogoutDTO AccountLogoutDTO { get; set; }
 
         [Required]
         [JsonPropertyName("deviceInfo")]
         public DeviceInfoModel DeviceInfo { get; set; }
+
+        [JsonPropertyName("error")]
+        public string? Error { get; set; }
     }
 }
