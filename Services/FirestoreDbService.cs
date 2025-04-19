@@ -15,7 +15,8 @@ namespace Data_Organizer_Server.Services
     IUserRepository userRepository,
     IUsersMetadataRepository usersMetadataRepository,
     ILogger<FirestoreDbService> logger,
-    IMappingService mappingService) : IFirestoreDbService
+    IMappingService mappingService,
+    IEncryptionService encryptionService) : IFirestoreDbService
     {
         private readonly IAccountLoginRepository _accountLoginRepository = accountLoginRepository;
         private readonly IAccountLogoutRepository _accountLogoutRepository = accountLogoutRepository;
@@ -26,6 +27,7 @@ namespace Data_Organizer_Server.Services
         private readonly IUsersMetadataRepository _usersMetadataRepository = usersMetadataRepository;
         private readonly ILogger<FirestoreDbService> _logger = logger;
         private readonly IMappingService _mappingService = mappingService;
+        private readonly IEncryptionService _encryptionService = encryptionService;
 
         public async Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request)
         {
@@ -117,6 +119,8 @@ namespace Data_Organizer_Server.Services
             var changePassword = _mappingService.MapToChangePasswordAsync(request.ChangePasswordDTO)?.Result;
             changePassword.Device = deviceDocRef;
             changePassword.UsersMetadata = usersMetadataDocRef;
+
+            changePassword.OldPassword = _encryptionService.Encrypt(changePassword.OldPassword);
 
             await _changePasswordRepository.CreateChangePasswordAsync(changePassword);
             return request;

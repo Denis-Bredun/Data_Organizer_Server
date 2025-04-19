@@ -4,6 +4,7 @@ using Data_Organizer_Server.Entities;
 using Data_Organizer_Server.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
 
 namespace Data_Organizer_Server.Controllers
 {
@@ -257,10 +258,28 @@ namespace Data_Organizer_Server.Controllers
                 _logger.LogError(ex, "User not found for UID '{Uid}'.", request.Uid);
                 return NotFound(request);
             }
+            catch (CryptographicException ex)
+            {
+                request.Error = "Encryption error occurred.";
+                _logger.LogError(ex, "Cryptographic error during password encryption for UID '{Uid}': {Message}", request.Uid, ex.Message);
+                return StatusCode(500, request);
+            }
+            catch (FormatException ex)
+            {
+                request.Error = "Invalid format in encryption data.";
+                _logger.LogError(ex, "Format error during password encryption for UID '{Uid}': {Message}", request.Uid, ex.Message);
+                return BadRequest(request);
+            }
+            catch (InvalidOperationException ex)
+            {
+                request.Error = ex.Message;
+                _logger.LogError(ex, "Invalid operation during password change for UID '{Uid}': {Message}", request.Uid, ex.Message);
+                return StatusCode(500, request);
+            }
             catch (Exception ex)
             {
                 request.Error = "An internal server error occurred. Please try again later.";
-                _logger.LogError(ex, "Unexpected error during password change request creation for UID '{Uid}'.", request.Uid);
+                _logger.LogError(ex, "Unexpected error during password change request creation for UID '{Uid}': {Message}", request.Uid, ex.Message);
                 return StatusCode(500, request);
             }
         }
