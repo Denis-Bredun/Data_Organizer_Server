@@ -11,14 +11,6 @@ namespace Data_Organizer_Server.Services
         private readonly CollectionReference _usersMetadataCollection = collectionFactory.GetUsersMetadataCollection();
         private readonly CollectionReference _devicesCollection = collectionFactory.GetDevicesCollection();
 
-        public UserDTO MapUser(User user) => new UserDTO
-        {
-            Uid = user.Uid,
-            UsersMetadataId = user.UsersMetadata?.Id,
-            IsDeleted = user.IsDeleted,
-            IsMetadataStored = user.IsMetadataStored
-        };
-
         public UsersMetadataDTO MapMetadata(UsersMetadata metadata) => new UsersMetadataDTO
         {
             CreationDate = metadata.CreationDate,
@@ -88,15 +80,6 @@ namespace Data_Organizer_Server.Services
             };
         }
 
-        public ChangePasswordDTO MapChangePassword(ChangePassword model) => new ChangePasswordDTO
-        {
-            UsersMetadataId = model.UsersMetadata?.Id,
-            OldPassword = model.OldPassword,
-            DeviceId = model.Device?.Id,
-            Location = model.Location,
-            Date = model.Date
-        };
-
         public async Task<ChangePassword> MapToChangePasswordAsync(ChangePasswordDTO dto)
         {
             DocumentReference? metadataRef = null;
@@ -132,14 +115,6 @@ namespace Data_Organizer_Server.Services
             };
         }
 
-        public AccountLoginDTO MapAccountLogin(AccountLogin model) => new AccountLoginDTO
-        {
-            UsersMetadataId = model.UsersMetadata?.Id,
-            DeviceId = model.Device?.Id,
-            Location = model.Location,
-            Date = model.Date
-        };
-
         public async Task<AccountLogin> MapToAccountLoginAsync(AccountLoginDTO dto)
         {
             DocumentReference? metadataRef = null;
@@ -173,14 +148,6 @@ namespace Data_Organizer_Server.Services
                 Date = dto.Date
             };
         }
-
-        public AccountLogoutDTO MapAccountLogout(AccountLogout model) => new AccountLogoutDTO
-        {
-            UsersMetadataId = model.UsersMetadata?.Id,
-            DeviceId = model.Device?.Id,
-            Location = model.Location,
-            Date = model.Date
-        };
 
         public async Task<AccountLogout> MapToAccountLogoutAsync(AccountLogoutDTO dto)
         {
