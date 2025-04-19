@@ -122,8 +122,6 @@ namespace Data_Organizer_Server.Services
 
             changePassword.OldPassword = _encryptionService.Encrypt(changePassword.OldPassword);
 
-            _logger.LogInformation($"CipherText: {changePassword.OldPassword}, Password: {_encryptionService.Decrypt(changePassword.OldPassword)}");
-
             await _changePasswordRepository.CreateChangePasswordAsync(changePassword);
             return request;
         }
