@@ -405,36 +405,46 @@ namespace Data_Organizer_Server.Controllers
         }
 
 
-        [HttpGet("headers/{uid}")]
-        public async Task<IActionResult> GetNoteHeadersByUidAsync(string uid)
+        [HttpPost("headers")]
+        public async Task<IActionResult> GetNoteHeadersByUidAsync([FromBody] UserDTO request)
         {
-            if (string.IsNullOrWhiteSpace(uid))
+            if (request == null)
             {
-                var error = "UID is required to fetch note headers.";
-                _logger.LogError("Invalid UID parameter: {Error}", error);
-                return BadRequest(new { Error = error });
+                var error = "Request body is required.";
+                _logger.LogError("Null UserDTO received: {Error}", error);
+                return BadRequest(new UserDTO { Error = error });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Uid) || string.IsNullOrWhiteSpace(request.UsersMetadataId))
+            {
+                request.Error = "One or more required fields are missing or invalid.";
+                _logger.LogError("Invalid user data: {Error}", request.Error);
+                return BadRequest(request);
             }
 
             try
             {
-                var headers = await _firestoreDbService.GetNoteHeadersByUidAsync(uid);
-                _logger.LogInformation("Note headers for UID '{Uid}' retrieved successfully.", uid);
+                var headers = await _firestoreDbService.GetNoteHeadersByUidAsync(request.Uid);
+                _logger.LogInformation("Note headers were got successfully for UID: {Uid}", request.Uid);
                 return Ok(headers);
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogError(ex, "UID was null or empty while retrieving note headers.");
-                return BadRequest(new { Error = ex.Message });
+                request.Error = ex.Message;
+                _logger.LogError(ex, "Invalid input data during note header creation.");
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, "No note headers found for UID '{Uid}'.", uid);
-                return NotFound(new { Error = ex.Message });
+                request.Error = ex.Message;
+                _logger.LogError(ex, "Note headers not found for UID: {Uid}. Returning empty list.", request.Uid);
+                return NotFound(new List<NoteDTO>());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error occurred while retrieving note headers for UID '{Uid}'.", uid);
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                request.Error = "An internal server error occurred. Please try again later.";
+                _logger.LogError(ex, "Unexpected error during note header creation.");
+                return StatusCode(500, request);
             }
         }
 

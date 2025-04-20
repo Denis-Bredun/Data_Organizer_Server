@@ -172,9 +172,18 @@ namespace Data_Organizer_Server.Services
             return noteDTO;
         }
 
-        public async Task<IEnumerable<NoteHeader>> GetNoteHeadersByUidAsync(string uid)
+        public async Task<List<NoteDTO>> GetNoteHeadersByUidAsync(string uid)
         {
-            return await _noteRepository.GetNoteHeadersByUidAsync(uid);
+            var noteHeaders = await _noteRepository.GetNoteHeadersByUidAsync(uid);
+
+            var noteDTOs = new List<NoteDTO>();
+
+            foreach (var header in noteHeaders)
+            {
+                noteDTOs.Add(_mappingService.MapNoteHeaderToDTO(header));
+            }
+
+            return noteDTOs;
         }
 
         public async Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader)

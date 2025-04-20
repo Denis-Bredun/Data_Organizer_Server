@@ -11,7 +11,7 @@ namespace Data_Organizer_Server.Interfaces
         Task<NoteDTO> CreateNoteAsync(NoteDTO noteDTO);
         Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request);
         Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader);
-        Task<IEnumerable<NoteHeader>> GetNoteHeadersByUidAsync(string uid);
+        Task<List<NoteDTO>> GetNoteHeadersByUidAsync(string uid);
         Task<UserMetadataFlagUpdateDTO> GetUserMetadataFlagAsync(UserMetadataFlagUpdateDTO request);
         Task RemoveNoteAsync(NoteHeader noteHeader);
         Task<bool> RemoveUserAsync(UserRequestDTO request);

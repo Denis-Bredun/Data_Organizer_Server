@@ -6,6 +6,7 @@ namespace Data_Organizer_Server.Interfaces
     public interface IMappingService
     {
         UsersMetadataDTO MapMetadata(UsersMetadata metadata);
+        NoteDTO MapNoteHeaderToDTO(NoteHeader header);
         Task<AccountLogin> MapToAccountLoginAsync(AccountLoginDTO dto);
         Task<AccountLogout> MapToAccountLogoutAsync(AccountLogoutDTO dto);
         Task<ChangePassword> MapToChangePasswordAsync(ChangePasswordDTO dto);

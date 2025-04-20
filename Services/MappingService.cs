@@ -214,5 +214,15 @@ namespace Data_Organizer_Server.Services
 
             return (header, body);
         }
+
+        public NoteDTO MapNoteHeaderToDTO(NoteHeader header) => new NoteDTO
+        {
+            UserId = header.UserId,
+            Title = header.Title,
+            PreviewText = header.PreviewText,
+            CreationTime = header.CreationTime,
+            IsDeleted = header.IsDeleted,
+            NoteBodyId = header.NoteBodyReference?.Id
+        };
     }
 }

@@ -19,5 +19,8 @@ namespace Data_Organizer_Server.DTOs
         [Required]
         [JsonPropertyName("isMetadataStored")]
         public bool IsMetadataStored { get; set; }
+
+        [JsonPropertyName("error")]
+        public string? Error { get; set; }
     }
 }
