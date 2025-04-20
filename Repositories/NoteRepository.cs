@@ -19,7 +19,9 @@ namespace Data_Organizer_Server.Repositories
             var body = note.Body;
             var header = note.Header;
 
-            await _noteBodiesCollection.AddAsync(body);
+            var bodyDocRef = await _noteBodiesCollection.AddAsync(body);
+            header.NoteBodyReference = bodyDocRef;
+
             await _noteHeadersCollection.AddAsync(header);
         }
 

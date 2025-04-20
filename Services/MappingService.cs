@@ -9,6 +9,7 @@ namespace Data_Organizer_Server.Services
     {
         private readonly CollectionReference _usersMetadataCollection = collectionFactory.GetUsersMetadataCollection();
         private readonly CollectionReference _devicesCollection = collectionFactory.GetDevicesCollection();
+        private readonly CollectionReference _noteHeadersCollection = collectionFactory.GetNoteHeadersCollection();
 
         public UsersMetadataDTO MapMetadata(UsersMetadata metadata) => new UsersMetadataDTO
         {
@@ -180,6 +181,38 @@ namespace Data_Organizer_Server.Services
                 Location = dto.Location,
                 Date = dto.Date
             };
+        }
+
+        public async Task<(NoteHeader Header, NoteBody Body)> MapToNoteAsync(NoteDTO dto)
+        {
+            DocumentReference? noteBodyRef = null;
+
+            if (!string.IsNullOrEmpty(dto.NoteBodyId))
+            {
+                var docRef = _noteHeadersCollection.Document(dto.NoteBodyId);
+                var snapshot = await docRef.GetSnapshotAsync();
+                if (snapshot.Exists)
+                {
+                    noteBodyRef = docRef;
+                }
+            }
+
+            var header = new NoteHeader
+            {
+                UserId = dto.UserId,
+                Title = dto.Title,
+                PreviewText = dto.PreviewText,
+                CreationTime = dto.CreationTime,
+                IsDeleted = dto.IsDeleted,
+                NoteBodyReference = noteBodyRef!
+            };
+
+            var body = new NoteBody
+            {
+                Content = dto.Content
+            };
+
+            return (header, body);
         }
     }
 }

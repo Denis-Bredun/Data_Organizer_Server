@@ -364,32 +364,46 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPost("create-note")]
-        public async Task<IActionResult> CreateNoteAsync([FromBody] Note note)
+        public async Task<IActionResult> CreateNoteAsync([FromBody] NoteDTO request)
         {
-            if (note == null || note.Header == null || note.Body == null)
+            if (request == null)
             {
-                var error = "Empty note or missing data!";
-                _logger.LogError("Received invalid CreateNote request: {Error}", error);
-                return BadRequest(new { Error = error });
+                var error = "Request body is required.";
+                _logger.LogError("Null NoteDTO received: {Error}", error);
+                return BadRequest(new NoteDTO { Error = error });
+            }
+
+            if (string.IsNullOrWhiteSpace(request.UserId) ||
+                string.IsNullOrWhiteSpace(request.Title) ||
+                string.IsNullOrWhiteSpace(request.PreviewText) ||
+                string.IsNullOrWhiteSpace(request.Content) ||
+                request.CreationTime == default)
+            {
+                request.Error = "One or more required fields are missing or invalid.";
+                _logger.LogError("Invalid note data: {Error}", request.Error);
+                return BadRequest(request);
             }
 
             try
             {
-                var createdNote = await _firestoreDbService.CreateNoteAsync(note);
-                _logger.LogInformation("Note created successfully for UID: {Uid}", note.Header.UserId);
-                return Ok(createdNote);
+                var createdNoteDTO = await _firestoreDbService.CreateNoteAsync(request);
+                _logger.LogInformation("Note created successfully for UID: {Uid}", request.UserId);
+                return Ok(createdNoteDTO);
             }
             catch (ArgumentNullException ex)
             {
+                request.Error = ex.Message;
                 _logger.LogError(ex, "Invalid input data during note creation.");
-                return BadRequest(new { Error = ex.Message });
+                return BadRequest(request);
             }
             catch (Exception ex)
             {
+                request.Error = "An internal server error occurred. Please try again later.";
                 _logger.LogError(ex, "Unexpected error during note creation.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                return StatusCode(500, request);
             }
         }
+
 
         [HttpGet("headers/{uid}")]
         public async Task<IActionResult> GetNoteHeadersByUidAsync(string uid)

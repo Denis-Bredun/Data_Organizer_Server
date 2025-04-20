@@ -10,6 +10,7 @@ namespace Data_Organizer_Server.Interfaces
         Task<AccountLogout> MapToAccountLogoutAsync(AccountLogoutDTO dto);
         Task<ChangePassword> MapToChangePasswordAsync(ChangePasswordDTO dto);
         Task<UsersMetadata> MapToMetadataAsync(UsersMetadataDTO dto);
+        Task<(NoteHeader Header, NoteBody Body)> MapToNoteAsync(NoteDTO dto);
         Task<User> MapToUserAsync(UserDTO dto);
     }
 }

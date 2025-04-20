@@ -8,7 +8,7 @@ namespace Data_Organizer_Server.Interfaces
         Task<AccountLoginRequestDTO?> CreateAccountLoginAsync(AccountLoginRequestDTO request);
         Task<AccountLogoutRequestDTO?> CreateAccountLogoutAsync(AccountLogoutRequestDTO request);
         Task<ChangePasswordRequestDTO?> CreateChangePasswordAsync(ChangePasswordRequestDTO request);
-        Task<Note> CreateNoteAsync(Note note);
+        Task<NoteDTO> CreateNoteAsync(NoteDTO noteDTO);
         Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request);
         Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader);
         Task<IEnumerable<NoteHeader>> GetNoteHeadersByUidAsync(string uid);

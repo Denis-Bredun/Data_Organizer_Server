@@ -157,10 +157,19 @@ namespace Data_Organizer_Server.Services
             return (deviceDocRef, usersMetadataDocRef);
         }
 
-        public async Task<Note> CreateNoteAsync(Note note)
+        public async Task<NoteDTO> CreateNoteAsync(NoteDTO noteDTO)
         {
+            var (header, body) = await _mappingService.MapToNoteAsync(noteDTO);
+
+            var note = new Note
+            {
+                Header = header,
+                Body = body
+            };
+
             await _noteRepository.CreateNoteAsync(note);
-            return note;
+
+            return noteDTO;
         }
 
         public async Task<IEnumerable<NoteHeader>> GetNoteHeadersByUidAsync(string uid)
