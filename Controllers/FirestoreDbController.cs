@@ -415,9 +415,9 @@ namespace Data_Organizer_Server.Controllers
                 return BadRequest(new UserDTO { Error = error });
             }
 
-            if (string.IsNullOrWhiteSpace(request.Uid) || string.IsNullOrWhiteSpace(request.UsersMetadataId))
+            if (string.IsNullOrWhiteSpace(request.Uid))
             {
-                request.Error = "One or more required fields are missing or invalid.";
+                request.Error = "Uid field is missing or invalid.";
                 _logger.LogError("Invalid user data: {Error}", request.Error);
                 return BadRequest(request);
             }
