@@ -191,9 +191,11 @@ namespace Data_Organizer_Server.Services
             return await _noteRepository.GetNoteBodyByHeaderAsync(noteHeader);
         }
 
-        public async Task RemoveNoteAsync(NoteHeader noteHeader)
+        public async Task RemoveNoteAsync(NoteDTO noteDTO)
         {
-            await _noteRepository.RemoveNoteAsync(noteHeader);
+            var note = await _mappingService.MapToNoteAsync(noteDTO);
+
+            await _noteRepository.RemoveNoteAsync(note.Header);
         }
 
         public async Task UpdateNoteAsync(Note note)

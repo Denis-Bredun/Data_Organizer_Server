@@ -477,36 +477,46 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpDelete("remove-note")]
-        public async Task<IActionResult> RemoveNoteAsync([FromBody] NoteHeader noteHeader)
+        public async Task<IActionResult> RemoveNoteAsync([FromBody] NoteDTO noteDTO)
         {
-            if (noteHeader == null)
+            if (noteDTO == null ||
+                string.IsNullOrEmpty(noteDTO.UserId) ||
+                string.IsNullOrEmpty(noteDTO.Title) ||
+                string.IsNullOrEmpty(noteDTO.PreviewText) ||
+                noteDTO.CreationTime == default)
             {
-                var error = "NoteHeader is required to remove note.";
-                _logger.LogError("Invalid NoteHeader parameter: {Error}", error);
-                return BadRequest(new { Error = error });
+                var error = "Invalid or incomplete note data.";
+                _logger.LogError("Invalid RemoveNote request: {Error}", error);
+                return BadRequest(new NoteDTO
+                {
+                    Error = error
+                });
             }
 
             try
             {
-                await _firestoreDbService.RemoveNoteAsync(noteHeader);
+                await _firestoreDbService.RemoveNoteAsync(noteDTO);
                 _logger.LogInformation("Note marked as deleted for UID '{Uid}' and creation time '{CreationTime}'.",
-                    noteHeader.UserId, noteHeader.CreationTime);
-                return Ok(noteHeader);
+                    noteDTO.UserId, noteDTO.CreationTime);
+                return Ok(noteDTO);
             }
             catch (ArgumentNullException ex)
             {
                 _logger.LogError(ex, "Null argument encountered while removing note.");
-                return BadRequest(new { Error = ex.Message });
+                noteDTO.Error = ex.Message;
+                return BadRequest(noteDTO);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, "Note header not found during remove operation.");
-                return NotFound(new { Error = ex.Message });
+                _logger.LogError(ex, "Note not found during remove operation.");
+                noteDTO.Error = ex.Message;
+                return NotFound(noteDTO);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unexpected error occurred while removing note.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                noteDTO.Error = "An internal server error occurred. Please try again later.";
+                return StatusCode(500, noteDTO);
             }
         }
 

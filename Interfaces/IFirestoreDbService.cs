@@ -13,7 +13,7 @@ namespace Data_Organizer_Server.Interfaces
         Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader);
         Task<List<NoteDTO>> GetNoteHeadersByUidAsync(string uid);
         Task<UserMetadataFlagUpdateDTO> GetUserMetadataFlagAsync(UserMetadataFlagUpdateDTO request);
-        Task RemoveNoteAsync(NoteHeader noteHeader);
+        Task RemoveNoteAsync(NoteDTO noteDTO);
         Task<bool> RemoveUserAsync(UserRequestDTO request);
         Task UpdateNoteAsync(Note note);
         Task SetMetadataStoredAsync(UserMetadataFlagUpdateDTO updateDTO);
