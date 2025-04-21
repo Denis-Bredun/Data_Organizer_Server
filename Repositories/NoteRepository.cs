@@ -44,7 +44,7 @@ namespace Data_Organizer_Server.Repositories
             if (string.IsNullOrWhiteSpace(uid))
                 throw new ArgumentNullException("Argument \"uid\" is null or empty while getting the note headers.");
 
-            var query = _noteHeadersCollection.WhereEqualTo("Uid", uid).WhereEqualTo("IsDeleted", false);
+            var query = _noteHeadersCollection.WhereEqualTo("UserId", uid).WhereEqualTo("IsDeleted", false);
             var snapshot = await query.GetSnapshotAsync();
             var docs = snapshot.Documents;
 
