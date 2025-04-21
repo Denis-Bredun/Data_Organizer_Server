@@ -137,7 +137,7 @@ namespace Data_Organizer_Server.Controllers
             }
         }
 
-        [HttpPost("set-metadata-flag")]
+        [HttpPut("set-metadata-flag")]
         public async Task<IActionResult> SetUserMetadataFlagAsync([FromBody] UserMetadataFlagUpdateDTO request)
         {
             if (request == null)
