@@ -6,7 +6,8 @@ namespace Data_Organizer_Server.Firestore_Converters
     {
         public object ToFirestore(DateTime value)
         {
-            return Timestamp.FromDateTime(value.ToUniversalTime());
+            var normalized = value.ToUniversalTime().AddTicks(-(value.Ticks % TimeSpan.TicksPerSecond));
+            return Timestamp.FromDateTime(normalized);
         }
 
         public DateTime FromFirestore(object value)

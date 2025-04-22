@@ -90,6 +90,8 @@ namespace Data_Organizer_Server.Repositories
         {
             header.CreationTime = header.CreationTime.ToUniversalTime();
 
+            header.CreationTime = header.CreationTime.ToUniversalTime().AddTicks(-(header.CreationTime.Ticks % TimeSpan.TicksPerSecond));
+
             var query = _noteHeadersCollection.WhereEqualTo("CreationTime", header.CreationTime);
             var snapshot = await query.GetSnapshotAsync();
             var docs = snapshot.Documents;
