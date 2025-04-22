@@ -449,30 +449,43 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPost("body-by-header")]
-        public async Task<IActionResult> GetNoteBodyByHeaderAsync([FromBody] NoteHeader noteHeader)
+        public async Task<IActionResult> GetNoteBodyByHeaderAsync([FromBody] NoteDTO request)
         {
-            if (noteHeader == null)
+            if (request == null)
             {
-                var error = "NoteHeader is required to fetch note body.";
-                _logger.LogError("Invalid NoteHeader parameter: {Error}", error);
-                return BadRequest(new { Error = error });
+                var error = "NoteDTO is required to fetch note body.";
+                _logger.LogError("Invalid NoteDTO parameter for UserId '{UserId}': {Error}", request?.UserId, error);
+                request.Error = error;
+                return BadRequest(request);
+            }
+
+            if (string.IsNullOrEmpty(request.NoteBodyId))
+            {
+                var error = "NoteBodyId is required to fetch note body.";
+                _logger.LogError("Missing NoteBodyId for UserId '{UserId}': {Error}", request.UserId, error);
+                request.Error = error;
+                return BadRequest(request);
             }
 
             try
             {
-                var body = await _firestoreDbService.GetNoteBodyByHeaderAsync(noteHeader);
-                _logger.LogInformation("Note body for header with UID '{Uid}' retrieved successfully.", noteHeader.UserId);
-                return Ok(body);
+                var body = await _firestoreDbService.GetNoteBodyByHeaderAsync(request);
+                _logger.LogInformation("Note body for header with UID '{UserId}' retrieved successfully.", request.UserId);
+
+                request.Content = body?.Content;
+                return Ok(request);
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogError(ex, "NoteHeader was null while retrieving note body.");
-                return BadRequest(new { Error = ex.Message });
+                _logger.LogError(ex, "NoteDTO was null while retrieving note body for UserId '{UserId}'.", request.UserId);
+                request.Error = ex.Message;
+                return BadRequest(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error occurred while retrieving note body for NoteHeader.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                _logger.LogError(ex, "Unexpected error occurred while retrieving note body for UserId '{UserId}'.", request.UserId);
+                request.Error = "An internal server error occurred. Please try again later.";
+                return StatusCode(500, request);
             }
         }
 

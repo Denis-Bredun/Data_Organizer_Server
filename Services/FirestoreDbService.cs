@@ -186,9 +186,11 @@ namespace Data_Organizer_Server.Services
             return noteDTOs;
         }
 
-        public async Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader)
+        public async Task<NoteBody> GetNoteBodyByHeaderAsync(NoteDTO request)
         {
-            return await _noteRepository.GetNoteBodyByHeaderAsync(noteHeader);
+            var note = await _mappingService.MapToNoteAsync(request);
+
+            return await _noteRepository.GetNoteBodyByHeaderAsync(note.Header);
         }
 
         public async Task RemoveNoteAsync(NoteDTO noteDTO)

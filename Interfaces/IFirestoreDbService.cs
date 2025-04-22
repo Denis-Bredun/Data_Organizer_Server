@@ -10,7 +10,7 @@ namespace Data_Organizer_Server.Interfaces
         Task<ChangePasswordRequestDTO?> CreateChangePasswordAsync(ChangePasswordRequestDTO request);
         Task<NoteDTO> CreateNoteAsync(NoteDTO noteDTO);
         Task<UserRequestDTO> CreateUserAsync(UserRequestDTO request);
-        Task<NoteBody> GetNoteBodyByHeaderAsync(NoteHeader noteHeader);
+        Task<NoteBody> GetNoteBodyByHeaderAsync(NoteDTO request);
         Task<List<NoteDTO>> GetNoteHeadersByUidAsync(string uid);
         Task<UserMetadataFlagUpdateDTO> GetUserMetadataFlagAsync(UserMetadataFlagUpdateDTO request);
         Task RemoveNoteAsync(NoteDTO noteDTO);
