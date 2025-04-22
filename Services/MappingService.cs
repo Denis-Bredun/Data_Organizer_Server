@@ -10,6 +10,7 @@ namespace Data_Organizer_Server.Services
         private readonly CollectionReference _usersMetadataCollection = collectionFactory.GetUsersMetadataCollection();
         private readonly CollectionReference _devicesCollection = collectionFactory.GetDevicesCollection();
         private readonly CollectionReference _noteHeadersCollection = collectionFactory.GetNoteHeadersCollection();
+        private readonly CollectionReference _noteBodiesCollection = collectionFactory.GetNoteBodiesCollection();
 
         public UsersMetadataDTO MapMetadata(UsersMetadata metadata) => new UsersMetadataDTO
         {
@@ -189,7 +190,7 @@ namespace Data_Organizer_Server.Services
 
             if (!string.IsNullOrEmpty(dto.NoteBodyId))
             {
-                var docRef = _noteHeadersCollection.Document(dto.NoteBodyId);
+                var docRef = _noteBodiesCollection.Document(dto.NoteBodyId);
                 var snapshot = await docRef.GetSnapshotAsync();
                 if (snapshot.Exists)
                 {
