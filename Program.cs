@@ -102,7 +102,7 @@ namespace Data_Organizer_Server
             services.AddEndpointsApiExplorer();
             //services.AddSwaggerGen();
             services.AddAuthorization();
-            services.AddDataProtection().UseEphemeralDataProtectionProvider();
+            services.AddDataProtection().UseEphemeralDataProtectionProvider().DisableAutomaticKeyGeneration();
             services.AddHttpClient<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
             services.AddScoped<ICollectionFactory, CollectionFactory>();
