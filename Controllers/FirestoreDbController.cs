@@ -1,5 +1,4 @@
 ﻿using Data_Organizer_Server.DTOs;
-using Data_Organizer_Server.Entities;
 using Data_Organizer_Server.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -455,8 +454,7 @@ namespace Data_Organizer_Server.Controllers
             {
                 var error = "NoteDTO is required to fetch note body.";
                 _logger.LogError("Invalid NoteDTO parameter for UserId '{UserId}': {Error}", request?.UserId, error);
-                request.Error = error;
-                return BadRequest(request);
+                return BadRequest(new NoteDTO() { Error = error });
             }
 
             if (string.IsNullOrEmpty(request.NoteBodyId))
@@ -534,37 +532,43 @@ namespace Data_Organizer_Server.Controllers
         }
 
         [HttpPut("update-note")]
-        public async Task<IActionResult> UpdateNoteAsync([FromBody] Note note)
+        public async Task<IActionResult> UpdateNoteAsync([FromBody] NoteDTO request)
         {
-            if (note == null || note.Header == null)
+            if (request == null ||
+                string.IsNullOrWhiteSpace(request.UserId) ||
+                string.IsNullOrWhiteSpace(request.Title) ||
+                string.IsNullOrWhiteSpace(request.PreviewText) ||
+                request.CreationTime == default)
             {
-                var error = "Note or its header must not be null.";
-                _logger.LogError("Invalid update note request: {Error}", error);
-                return BadRequest(new { Error = error });
+                var error = "Invalid or incomplete note data.";
+                _logger.LogError("Invalid update note request from UID '{UserId}': {Error}", request?.UserId, error);
+                return BadRequest(new NoteDTO() { Error = error });
             }
 
             try
             {
-                await _firestoreDbService.UpdateNoteAsync(note);
-                _logger.LogInformation("Note updated successfully for UID: {Uid} at {Time}", note.Header.UserId, note.Header.CreationTime);
-                return Ok(note);
+                await _firestoreDbService.UpdateNoteAsync(request);
+                _logger.LogInformation("Note updated successfully for UID: {Uid} at {Time}", request.UserId, request.CreationTime);
+                return Ok(request);
             }
             catch (ArgumentNullException ex)
             {
-                _logger.LogError(ex, "Invalid input data during note update.");
-                return BadRequest(new { Error = ex.Message });
+                _logger.LogError(ex, "Invalid input data during note update for UID: {Uid}", request.UserId);
+                request.Error = ex.Message;
+                return BadRequest(request);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogError(ex, "Note header not found during update. UID: {Uid}, Time: {Time}", note.Header?.UserId, note.Header?.CreationTime);
-                return NotFound(new { Error = ex.Message });
+                _logger.LogError(ex, "Note header not found during update. UID: {Uid}, Time: {Time}", request.UserId, request.CreationTime);
+                request.Error = ex.Message;
+                return NotFound(request);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Unexpected error occurred during note update.");
-                return StatusCode(500, new { Error = "An internal server error occurred. Please try again later." });
+                _logger.LogError(ex, "Unexpected error occurred during note update for UID: {Uid}", request.UserId);
+                request.Error = "An internal server error occurred. Please try again later.";
+                return StatusCode(500, request);
             }
         }
-
     }
 }

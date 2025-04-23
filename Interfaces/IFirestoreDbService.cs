@@ -15,7 +15,7 @@ namespace Data_Organizer_Server.Interfaces
         Task<UserMetadataFlagUpdateDTO> GetUserMetadataFlagAsync(UserMetadataFlagUpdateDTO request);
         Task RemoveNoteAsync(NoteDTO noteDTO);
         Task<bool> RemoveUserAsync(UserRequestDTO request);
-        Task UpdateNoteAsync(Note note);
+        Task UpdateNoteAsync(NoteDTO request);
         Task SetMetadataStoredAsync(UserMetadataFlagUpdateDTO updateDTO);
         Task<UsersMetadataDTO> GetUserMetadataAsync(UsersMetadataDTO request);
     }
