@@ -6,7 +6,6 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using Google.Cloud.Firestore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Data_Organizer_Server
@@ -102,7 +101,6 @@ namespace Data_Organizer_Server
             services.AddEndpointsApiExplorer();
             //services.AddSwaggerGen();
             services.AddAuthorization();
-            services.AddDataProtection().UseEphemeralDataProtectionProvider();
             services.AddHttpClient<IOpenAIService, OpenAIService>();
             services.AddScoped<IAzureService, AzureService>();
             services.AddScoped<ICollectionFactory, CollectionFactory>();
@@ -125,8 +123,8 @@ namespace Data_Organizer_Server
             //    app.UseSwagger();
             //    app.UseSwaggerUI();
             //}
-            //app.UseHttpsRedirection();
 
+            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseAuthorization();
             app.MapControllers();
