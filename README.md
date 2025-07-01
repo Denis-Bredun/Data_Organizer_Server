@@ -14,10 +14,9 @@
 
 Before getting started, make sure you have the following installed:
 
-- **Visual Studio 2022** with the **ASP.NET and web development** workload  
-  [Install Visual Studio](https://visualstudio.microsoft.com/vs/)
+- [**Visual Studio 2022**](https://visualstudio.microsoft.com/vs/) with the **ASP.NET and web development** workload
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [Git](https://git-scm.com/)
+- [Git](https://git-scm.com/) - to clone the repository.
 
 ---
 
@@ -27,9 +26,9 @@ Before getting started, make sure you have the following installed:
 
 Use Git to download the project:
 
-"git clone https://github.com/Denis-Bredun/Data_Organizer_Server.git"
+- "git clone https://github.com/Denis-Bredun/Data_Organizer_Server.git"
 
-"cd Data_Organizer_Server"
+- "cd Data_Organizer_Server"
 
 ### 2. Open the solution
 
