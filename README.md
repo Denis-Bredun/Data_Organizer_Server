@@ -53,5 +53,4 @@ Each push to the `master` branch triggers a workflow that:
 Although the workflow builds and prepares the image, it does **not** perform automatic deployment (CD).  
 This setup ensures fast feedback, consistent builds, and reliable Docker image generation.
 
-> ✅ CI workflow is defined in `.github/workflows/docker-ci.yml`
-
+> Workflow config: [.github/workflows/docker-ci.yml](.github/workflows/docker-ci.yml)
