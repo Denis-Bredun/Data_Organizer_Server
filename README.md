@@ -36,6 +36,8 @@ Use Git to download the project:
   **or**  
 - Open Visual Studio → **File → Open → Project/Solution** → select `"Data_Organizer_Server.sln"`
 
+---
+
 ## 🚀 CI/CD with GitHub Actions
 
 ![CI](https://github.com/Denis-Bredun/Data_Organizer_Server/actions/workflows/docker-ci.yml/badge.svg)
