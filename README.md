@@ -35,3 +35,21 @@ Use Git to download the project:
 - Double-click the `"Data_Organizer_Server.sln"` file  
   **or**  
 - Open Visual Studio → **File → Open → Project/Solution** → select `"Data_Organizer_Server.sln"`
+
+## 🚀 CI/CD with GitHub Actions
+
+![CI](https://github.com/Denis-Bredun/Data_Organizer_Server/actions/workflows/docker-ci.yml/badge.svg)
+
+This project uses **GitHub Actions** for continuous integration and delivery (CI/CD).
+
+Each push to the `main` branch triggers an automated workflow that:
+
+- Builds the project using **.NET 8 SDK**
+- Publishes a Docker image based on the `Dockerfile`
+- Pushes the image to **Docker Hub** (or your private registry)
+- Injects environment variables securely using **GitHub Secrets**
+
+This ensures consistent builds, fast deployment, and up-to-date Docker images.
+
+
+> ✅ CI/CD is defined in `.github/workflows/docker-ci.yml`
