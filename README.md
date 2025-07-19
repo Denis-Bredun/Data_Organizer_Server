@@ -44,7 +44,7 @@ Use Git to download the project:
 
 This project uses **GitHub Actions** for continuous integration and delivery (CI/CD).
 
-Each push to the `main` branch triggers an automated workflow that:
+Each push to the `master` branch triggers an automated workflow that:
 
 - Builds the project using **.NET 8 SDK**
 - Publishes a Docker image based on the `Dockerfile`
