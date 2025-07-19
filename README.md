@@ -38,20 +38,20 @@ Use Git to download the project:
 
 ---
 
-## 🚀 CI/CD with GitHub Actions
+## 🚀 Continuous Integration
 
 ![CI](https://github.com/Denis-Bredun/Data_Organizer_Server/actions/workflows/docker-ci.yml/badge.svg)
 
-This project uses **GitHub Actions** for continuous integration and delivery (CI/CD).
+This project uses **GitHub Actions** for automated Continuous Integration (CI).
 
-Each push to the `master` branch triggers an automated workflow that:
+Each push to the `master` branch triggers a workflow that:
 
 - Builds the project using **.NET 8 SDK**
 - Publishes a Docker image based on the `Dockerfile`
-- Pushes the image to **Docker Hub** (or your private registry)
 - Injects environment variables securely using **GitHub Secrets**
 
-This ensures consistent builds, fast deployment, and up-to-date Docker images.
+Although the workflow builds and prepares the image, it does **not** perform automatic deployment (CD).  
+This setup ensures fast feedback, consistent builds, and reliable Docker image generation.
 
+> ✅ CI workflow is defined in `.github/workflows/docker-ci.yml`
 
-> ✅ CI/CD is defined in `.github/workflows/docker-ci.yml`
